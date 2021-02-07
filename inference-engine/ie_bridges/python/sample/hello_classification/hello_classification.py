@@ -21,7 +21,7 @@ from argparse import ArgumentParser, SUPPRESS
 import cv2
 import numpy as np
 import logging as log
-from openvino.inference_engine import IECore
+from openvino.inference_engine import IECore, TensorDesc, Blob
 
 
 def build_argparser():
@@ -71,7 +71,7 @@ def main():
 
     # Read and pre-process input images
     n, c, h, w = net.input_info[input_blob].input_data.shape
-    images = np.ndarray(shape=(n, c, h, w))
+    images = np.ndarray(shape=(n, c, h, w), dtype=np.float32)
     for i in range(n):
         image = cv2.imread(args.input)
         if image.shape[:-1] != (h, w):
@@ -80,13 +80,23 @@ def main():
         image = image.transpose((2, 0, 1))  # Change data layout from HWC to CHW
         images[i] = image
 
+    td = TensorDesc("FP32", [n, c, h, w], "NCHW")
+    input_img_blob = Blob(td, images)
+
     # Loading model to the plugin
     log.info("Loading model to the plugin")
     exec_net = ie.load_network(network=net, device_name=args.device)
 
     # Start sync inference
     log.info("Starting inference in synchronous mode")
-    res = exec_net.infer(inputs={input_blob: images})
+
+    infer_request = exec_net.create_infer_request()
+    infer_request.set_input({input_blob: input_img_blob})
+    infer_request.infer()
+    res = {}
+    res[out_blob] = infer_request.get_blob(out_blob).buffer
+
+    #res = exec_net.infer(inputs={input_blob: images})
 
     # Processing output blob
     log.info("Processing output blob")
