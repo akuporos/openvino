@@ -23,6 +23,7 @@ import numpy as np
 import logging as log
 from openvino.inference_engine import IECore, TensorDesc, Blob
 
+from copy import deepcopy
 
 def build_argparser():
     parser = ArgumentParser(add_help=False)
@@ -93,10 +94,9 @@ def main():
     infer_request = exec_net.create_infer_request()
     infer_request.set_input({input_blob: input_img_blob})
     infer_request.infer()
-    res = {}
-    res[out_blob] = infer_request.get_blob(out_blob).buffer
+    res = infer_request.get_output_blobs([out_blob])
+    #res[out_blob] = deepcopy(infer_request.get_blob(out_blob).buffer)
 
-    #res = exec_net.infer(inputs={input_blob: images})
 
     # Processing output blob
     log.info("Processing output blob")
