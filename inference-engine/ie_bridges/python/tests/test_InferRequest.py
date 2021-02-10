@@ -151,18 +151,29 @@ def test_write_to_input_blobs_copy(device):
 
 
 def test_infer(device):
-    ie_core = ie.IECore()
+    ie_core = IECore()
     net = ie_core.read_network(test_net_xml, test_net_bin)
-    exec_net = ie_core.load_network(net, device, num_requests=1)
+    input_blob = next(iter(net.input_info))
+    out_blob = next(iter(net.outputs))
+    n, c, h, w = net.input_info[input_blob].input_data.shape
+
+    # exec_net = ie_core.load_network(net, device, num_requests=1)
+    exec_net = ie_core.load_network(net, device)
     img = read_image()
-    request = exec_net.requests[0]
-    request.infer({'data': img})
-    res = request.output_blobs['fc_out'].buffer
+    td = TensorDesc("FP32", [n, c, h, w], "NCHW")
+    input_img_blob = Blob(td, img)
+    # request = exec_net.requests[0]
+    request = exec_net.create_infer_request()
+    request.set_input({input_blob: input_img_blob})
+    # request.infer({input_blob: input_img_blob})
+    request.infer()
+    # res = request.output_blobs['fc_out'].buffer
+    res = request.get_output_blobs([out_blob])
+
     assert np.argmax(res) == 2
     del exec_net
     del ie_core
     del net
-
 
 def test_async_infer_default_timeout(device):
     ie_core = ie.IECore()

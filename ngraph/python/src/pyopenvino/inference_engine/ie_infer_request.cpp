@@ -15,7 +15,7 @@
 //*****************************************************************************
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
-
+#include <pybind11/numpy.h>
 
 #include <boost/type_index.hpp>
 
@@ -50,11 +50,47 @@ void regclass_InferRequest(py::module m)
             self.SetBlob(name, blob);
         }
     });
+    cls.def("get_output_blobs", [](InferenceEngine::InferRequest& self, const py::list& output_names) {
+        #define STORE_TBLOB(precision)                                                                              \
+        case InferenceEngine::Precision::precision: {                                                               \
+            using myBlobType = InferenceEngine::PrecisionTrait<InferenceEngine::Precision::precision>::value_type;  \
+            InferenceEngine::TBlob<myBlobType>& tblob = dynamic_cast<InferenceEngine::TBlob<myBlobType>&>(*blob);    \
+            auto blob_ptr = tblob.buffer().template as<myBlobType*>();                                              \
+            auto shape = tblob.getTensorDesc().getDims();                                                           \
+            output_blobs[outname] = py::array_t<myBlobType>(shape, blob_ptr);                                       \
+            break;                                                                                                  \
+        }
+
+        py::dict output_blobs;
+        for (auto&& outname : output_names) {
+            InferenceEngine::Blob::Ptr blob = self.GetBlob(outname.cast<std::string>().c_str());
+            auto precision = blob->getTensorDesc().getPrecision();
+
+            switch (precision) {
+                STORE_TBLOB(FP32);
+                STORE_TBLOB(FP16);
+                STORE_TBLOB(Q78);
+                STORE_TBLOB(I16);
+                STORE_TBLOB(U8);
+                STORE_TBLOB(I8);
+                STORE_TBLOB(U16);
+                STORE_TBLOB(I32);
+                STORE_TBLOB(U32);
+                STORE_TBLOB(U64);
+                STORE_TBLOB(I64);
+                default:
+                    THROW_IE_EXCEPTION << "cannot locate blob for precision: " << precision;
+            }
+        }
+        #undef STORE_TBLOB
+        return output_blobs;
+    });
 //    cls.def_property_readonly("input_blobs", [](){
 //
 //    });
-//    cls.def_property_readonly("output_blobs", [](){
-//
+//    cls.def_property_readonly("output_blobs", [](InferenceEngine::InferRequest& self) {
+//        py::ExecutableNetwork exe;
+//        auto exe.outputs;
 //    });
 //    cls.def("set_batch", );
 //    cls.def("get_perf_counts", );
