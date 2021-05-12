@@ -13,8 +13,6 @@ namespace py = pybind11;
 template <typename T>
 class ConstWrapper {
 public:
-    ConstWrapper() = default;
-    ~ConstWrapper() = default;
     const T& cref() const { return value; }
 
 protected:
