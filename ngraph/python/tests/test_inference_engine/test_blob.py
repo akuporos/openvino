@@ -105,4 +105,4 @@ def test_incompatible_input_precision():
     with pytest.raises(ValueError) as e:
         Blob(tensor_desc, image)
     assert "Data type float64 of provided numpy array " \
-           "does not match TensorDesc precision FP32" in str(e.value)
+           "doesn't match to TensorDesc precision FP32" in str(e.value)

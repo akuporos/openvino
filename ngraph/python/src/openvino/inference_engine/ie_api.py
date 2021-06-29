@@ -18,8 +18,8 @@ import numpy as np
 
 precision_map = {'FP32': np.float32,
                  'FP64': np.float64,
-                 'FP16': np.int16,
-                 'BF16': np.int16,
+                 'FP16': np.float16,
+                 'BF16': np.float16,
                  'I16': np.int16,
                  'I8': np.int8,
                  'BIN': np.int8,
