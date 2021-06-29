@@ -57,7 +57,7 @@ def test_ie_core_class():
     # from IPython import embed; embed()
 
     request = executable_network.create_infer_request()
-    input_data = np.random.rand(*input_shape) - 0.5
+    input_data = np.random.rand(*input_shape).astype(np.float32) - 0.5
 
     expected_output = np.maximum(0.0, input_data)
 
