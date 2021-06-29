@@ -7,24 +7,11 @@ import pytest
 import warnings
 
 from openvino.inference_engine import IECore, IENetwork, ExecutableNetwork, DataPtr, InputInfoPtr, InputInfoCPtr
-from ..conftest import model_path, image_path
+from ..conftest import model_path, image_path, read_image
 
 
 test_net_xml, test_net_bin = model_path()
 path_to_image = image_path()
-
-
-def read_image():
-    import cv2
-    n, c, h, w = (1, 3, 32, 32)
-    image = cv2.imread(path_to_image)
-    if image is None:
-        raise FileNotFoundError("Input image not found")
-
-    image = cv2.resize(image, (h, w)) / 255
-    image = image.transpose((2, 0, 1))
-    image = image.reshape((n, c, h, w))
-    return image
 
 
 # def test_infer(device):

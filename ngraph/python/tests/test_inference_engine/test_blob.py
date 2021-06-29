@@ -7,10 +7,9 @@ import numpy as np
 import os
 
 from openvino.inference_engine import TensorDesc, Blob
-from ..conftest import image_path
+from ..conftest import read_image
 
 
-path_to_image = image_path()
 
 
 def test_init_with_tensor_desc():
@@ -101,15 +100,7 @@ def test_incompatible_array_and_td():
 
 
 def test_incompatible_input_precision():
-    import cv2
-    n, c, h, w = (1, 3, 32, 32)
-    image = cv2.imread(path_to_image)
-    if image is None:
-        raise FileNotFoundError("Input image not found")
-
-    image = cv2.resize(image, (h, w)) / 255
-    image = image.transpose((2, 0, 1))
-    image = image.reshape((n, c, h, w))
+    image = read_image(dtype = np.float64)
     tensor_desc = TensorDesc("FP32", [1, 3, 32, 32], "NCHW")
     with pytest.raises(ValueError) as e:
         Blob(tensor_desc, image)
