@@ -44,9 +44,9 @@ def test_outputs(device):
     ie_core = IECore()
     net = ie_core.read_network(model=test_net_xml, weights=test_net_bin)
     exec_net = ie_core.load_network(network=net, device_name=device)
-    assert len(exec_net.outputs) == 1
-    assert "fc_out" in exec_net.outputs
-    #assert isinstance(exec_net.outputs['fc_out'], CDataPtr)
+    assert len(exec_net.output_info) == 1
+    assert "fc_out" in exec_net.output_info
+    #assert isinstance(exec_net.output_info['fc_out'], CDataPtr)
 
 
 # def test_access_requests(device):
