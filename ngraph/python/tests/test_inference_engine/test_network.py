@@ -178,7 +178,7 @@ def test_tensor_names():
             """
     ie = IECore()
     weights = b''
-    net = ie.read_network(model=model.encode('utf-8'), weights=weights, init_from_buffer=True)
+    net = ie.read_network(model=model.encode('utf-8'), weights=weights)
     assert net.get_ov_name_for_tensor("relu_t") == "activation"
     assert net.get_ov_name_for_tensor("identity_t") == "activation"
     assert net.get_ov_name_for_tensor("input") == "in1"
