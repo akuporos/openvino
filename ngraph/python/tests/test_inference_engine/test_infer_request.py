@@ -40,12 +40,12 @@ def test_set_batch_size(device):
     ie_core.set_config({"DYN_BATCH_ENABLED": "YES"}, device)
     net = ie_core.read_network(test_net_xml, test_net_bin)
     net.batch_size = 10
-    data = np.ones(shape=net.input_info['data'].input_data.shape)
+    data = np.ones(shape=net.input_info['data'].input_data.shape,dtype = np.float32)
     exec_net = ie_core.load_network(net, device)
     data[0] = read_image()[0]
     request = exec_net.create_infer_request()
     request.set_batch(1)
-    td = TensorDesc("FP32", [1, 3, 32, 32], "NCHW")
+    td = TensorDesc("FP32", [10, 3, 32, 32], "NCHW")
     input_blob = Blob(td, data)
     request.set_input({'data': input_blob})
     request.infer()
@@ -57,12 +57,13 @@ def test_set_batch_size(device):
 
 def test_set_zero_batch_size(device):
     ie_core = IECore()
+    ie_core.set_config({"DYN_BATCH_ENABLED": "YES"}, device)
     net = ie_core.read_network(test_net_xml, test_net_bin)
     exec_net = ie_core.load_network(net, device)
     request = exec_net.create_infer_request()
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(RuntimeError) as e:
         request.set_batch(0)
-    assert "Batch size should be positive integer number but 0 specified" in str(e.value)
+    assert "Invalid dynamic batch size 0 for this request" in str(e.value)
     del exec_net
     del ie_core
     del net
@@ -70,12 +71,13 @@ def test_set_zero_batch_size(device):
 
 def test_set_negative_batch_size(device):
     ie_core = IECore()
+    ie_core.set_config({"DYN_BATCH_ENABLED": "YES"}, device)
     net = ie_core.read_network(test_net_xml, test_net_bin)
     exec_net = ie_core.load_network(net, device)
     request = exec_net.create_infer_request()
-    with pytest.raises(ValueError) as e:
+    with pytest.raises(RuntimeError) as e:
         request.set_batch(-1)
-    assert "Batch size should be positive integer number but -1 specified" in str(e.value)
+    assert "Invalid dynamic batch size -1 for this request" in str(e.value)
     del exec_net
     del ie_core
     del net
