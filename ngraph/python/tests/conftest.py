@@ -7,6 +7,7 @@ import pytest
 import tests
 
 from pathlib import Path
+import numpy as np
 
 
 def image_path():
@@ -36,6 +37,19 @@ def model_prototxt_path():
     path_to_repo = os.environ["MODELS_PATH"]
     test_prototxt = os.path.join(path_to_repo, "models", "test_model", 'test_model.prototxt')
     return test_prototxt
+
+
+def read_image(dtype = np.float32):
+    import cv2
+    n, c, h, w = (1, 3, 32, 32)
+    image = cv2.imread(image_path())
+    if image is None:
+        raise FileNotFoundError("Input image not found")
+
+    image = cv2.resize(image, (h, w)) / 255
+    image = image.transpose((2, 0, 1)).astype(dtype)
+    image = image.reshape((n, c, h, w))
+    return image
 
 
 def plugins_path():

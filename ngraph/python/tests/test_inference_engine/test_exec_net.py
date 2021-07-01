@@ -7,24 +7,11 @@ import pytest
 import warnings
 
 from openvino.inference_engine import IECore, IENetwork, ExecutableNetwork, DataPtr, InputInfoPtr, InputInfoCPtr
-from ..conftest import model_path, image_path
+from ..conftest import model_path, image_path, read_image
 
 
 test_net_xml, test_net_bin = model_path()
 path_to_image = image_path()
-
-
-def read_image():
-    import cv2
-    n, c, h, w = (1, 3, 32, 32)
-    image = cv2.imread(path_to_image)
-    if image is None:
-        raise FileNotFoundError("Input image not found")
-
-    image = cv2.resize(image, (h, w)) / 255
-    image = image.transpose((2, 0, 1))
-    image = image.reshape((n, c, h, w))
-    return image
 
 
 # def test_infer(device):
@@ -57,9 +44,9 @@ def test_outputs(device):
     ie_core = IECore()
     net = ie_core.read_network(model=test_net_xml, weights=test_net_bin)
     exec_net = ie_core.load_network(network=net, device_name=device)
-    assert len(exec_net.outputs) == 1
-    assert "fc_out" in exec_net.outputs
-    #assert isinstance(exec_net.outputs['fc_out'], CDataPtr)
+    assert len(exec_net.output_info) == 1
+    assert "fc_out" in exec_net.output_info
+    #assert isinstance(exec_net.output_info['fc_out'], CDataPtr)
 
 
 # def test_access_requests(device):
