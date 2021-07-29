@@ -264,6 +264,36 @@ bool op::v0::Squeeze::evaluate(const HostTensorVector& outputs,
     return squeeze::evaluate_squeeze(inputs[0], inputs[1], outputs[0]);
 }
 
+bool op::v0::Squeeze::has_evaluate() const
+{
+    NGRAPH_OP_SCOPE(v0_Squeeze_has_evaluate);
+
+    if (get_input_size() == 2)
+    {
+        switch (get_input_element_type(1))
+        {
+        case ngraph::element::i8:
+        case ngraph::element::i16:
+        case ngraph::element::i32:
+        case ngraph::element::i64:
+        case ngraph::element::u8:
+        case ngraph::element::u16:
+        case ngraph::element::u32:
+        case ngraph::element::u64: return true;
+        default: break;
+        }
+        return false;
+    }
+    else if (get_input_size() == 1)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
 bool op::v0::Squeeze::evaluate_lower(const HostTensorVector& output_values) const
 {
     NGRAPH_OP_SCOPE(v0_Squeeze_evaluate_lower);
@@ -297,19 +327,7 @@ bool op::v0::Squeeze::constant_fold(OutputVector& output_values, const OutputVec
     if (auto data_const =
             std::dynamic_pointer_cast<op::Constant>(inputs_values[0].get_node_shared_ptr()))
     {
-        // In case if data constant has single consumer we can change it shape without making a copy
-        // Otherwise we create Constant copy with shape from squeeze node
-        if (data_const->output(0).get_target_inputs().size() == 1)
-        {
-            data_const->set_data_shape(shape);
-            data_const->validate_and_infer_types();
-            output_values[0] = data_const;
-        }
-        else
-        {
-            output_values[0] = std::make_shared<op::Constant>(
-                data_const->get_element_type(), shape, data_const->get_data_ptr());
-        }
+        output_values[0] = std::make_shared<op::Constant>(*data_const, shape);
         return true;
     }
     return false;

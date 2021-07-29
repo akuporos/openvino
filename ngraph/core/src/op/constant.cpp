@@ -38,13 +38,27 @@ static inline string to_cpp_string(T value)
     return rc;
 }
 
-constexpr NodeTypeInfo op::Constant::type_info;
+NGRAPH_RTTI_DEFINITION(op::Constant, "Constant", 0);
 
 op::Constant::Constant(const shared_ptr<runtime::Tensor>& tensor)
-    : Constant(tensor->get_element_type(), tensor->get_shape())
 {
-    tensor->read(get_data_ptr_nc(), tensor->get_size_in_bytes());
-    m_all_elements_bitwise_identical = are_all_data_elements_bitwise_identical();
+    m_element_type = tensor->get_element_type();
+    m_shape = tensor->get_shape();
+    // Share data from HostTensor if we work with it
+    // And copy data in other cas
+    if (auto hostTensor = std::dynamic_pointer_cast<runtime::HostTensor>(tensor))
+    {
+        m_data = make_shared<runtime::SharedBuffer<std::shared_ptr<runtime::Tensor>>>(
+            static_cast<char*>(hostTensor->get_data_ptr()), tensor->get_size_in_bytes(), tensor);
+    }
+    else
+    {
+        constructor_validate_and_infer_types();
+        allocate_buffer();
+        tensor->read(get_data_ptr_nc(), tensor->get_size_in_bytes());
+        m_all_elements_bitwise_identical = are_all_data_elements_bitwise_identical();
+    }
+    constructor_validate_and_infer_types();
 }
 
 op::Constant::Constant(const element::Type& type,
@@ -61,8 +75,6 @@ op::Constant::Constant(const element::Type& type,
                           ", expected ",
                           shape_size(m_shape),
                           ".");
-
-    constructor_validate_and_infer_types();
 
     using Type_t = element::Type_t;
 
@@ -138,7 +150,6 @@ op::Constant::Constant(const element::Type& type, const Shape& shape, const void
 {
     size_t size = ceil(shape_size(m_shape) * m_element_type.bitwidth() / 8.f);
     std::memcpy(get_data_ptr_nc(), data, size);
-    constructor_validate_and_infer_types();
     m_all_elements_bitwise_identical = are_all_data_elements_bitwise_identical();
 }
 
@@ -146,6 +157,18 @@ op::Constant::Constant(const Constant& other)
 {
     m_element_type = other.m_element_type;
     m_shape = other.m_shape;
+    m_data = other.m_data;
+    m_all_elements_bitwise_identical = other.m_all_elements_bitwise_identical;
+    constructor_validate_and_infer_types();
+}
+
+op::Constant::Constant(const Constant& other, const Shape& new_shape)
+{
+    NGRAPH_CHECK(shape_size(other.m_shape) == shape_size(new_shape),
+                 "Shape size " + std::to_string(shape_size(new_shape)) + " is not equal to " +
+                     std::to_string(shape_size(other.m_shape)));
+    m_element_type = other.m_element_type;
+    m_shape = new_shape;
     m_data = other.m_data;
     m_all_elements_bitwise_identical = other.m_all_elements_bitwise_identical;
     constructor_validate_and_infer_types();
@@ -390,13 +413,11 @@ shared_ptr<Node> op::Constant::clone_with_new_inputs(const OutputVector& new_arg
 }
 
 template <typename T>
-static bool test_bitwise_identical(const op::Constant* constant)
+static bool test_bitwise_identical(const T* data, const size_t size)
 {
-    const size_t size = shape_size(constant->get_shape());
     bool data_is_constant = true;
     if (size > 0)
     {
-        const T* data = constant->get_data_ptr<T>();
         const T compare = data[0];
         for (size_t i = 1; i < size; i++)
         {
@@ -418,13 +439,13 @@ bool op::Constant::are_all_data_elements_bitwise_identical() const
 #pragma GCC diagnostic error "-Wswitch"
 #pragma GCC diagnostic error "-Wswitch-enum"
 #endif
-    switch (get_element_type())
+    switch (m_element_type)
     {
     case element::Type_t::boolean:
     case element::Type_t::i8:
     case element::Type_t::u8:
     {
-        rc = test_bitwise_identical<uint8_t>(this);
+        rc = test_bitwise_identical<uint8_t>(get_data_ptr<uint8_t>(), shape_size(m_shape));
         break;
     }
     case element::Type_t::bf16:
@@ -432,21 +453,21 @@ bool op::Constant::are_all_data_elements_bitwise_identical() const
     case element::Type_t::i16:
     case element::Type_t::u16:
     {
-        rc = test_bitwise_identical<uint16_t>(this);
+        rc = test_bitwise_identical<uint16_t>(get_data_ptr<uint16_t>(), shape_size(m_shape));
         break;
     }
     case element::Type_t::f32:
     case element::Type_t::i32:
     case element::Type_t::u32:
     {
-        rc = test_bitwise_identical<uint32_t>(this);
+        rc = test_bitwise_identical<uint32_t>(get_data_ptr<uint32_t>(), shape_size(m_shape));
         break;
     }
     case element::Type_t::f64:
     case element::Type_t::i64:
     case element::Type_t::u64:
     {
-        rc = test_bitwise_identical<uint64_t>(this);
+        rc = test_bitwise_identical<uint64_t>(get_data_ptr<uint64_t>(), shape_size(m_shape));
         break;
     }
     case element::Type_t::i4:
@@ -476,6 +497,7 @@ bool op::v0::Constant::visit_attributes(AttributeVisitor& visitor)
         allocate_buffer();
     }
     visitor.on_attribute("value", m_data);
+    m_all_elements_bitwise_identical = are_all_data_elements_bitwise_identical();
     return true;
 }
 
@@ -485,6 +507,12 @@ bool op::v0::Constant::evaluate(const HostTensorVector& outputs,
     NGRAPH_OP_SCOPE(v0_Constant_evaluate);
     auto output = outputs[0];
     output->write(get_data_ptr(), output->get_size_in_bytes());
+    return true;
+}
+
+bool op::v0::Constant::has_evaluate() const
+{
+    NGRAPH_OP_SCOPE(v0_Constant_has_evaluate);
     return true;
 }
 

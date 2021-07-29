@@ -26,8 +26,8 @@ namespace ngraph
             class NGRAPH_API Constant : public Op
             {
             public:
-                static constexpr NodeTypeInfo type_info{"Constant", 0};
-                const NodeTypeInfo& get_type_info() const override { return type_info; }
+                NGRAPH_RTTI_DECLARATION;
+
                 Constant() = default;
 
                 /// \brief Initialize a constant from tensor
@@ -66,7 +66,6 @@ namespace ngraph
                     {
                         write_values(values);
                     }
-                    constructor_validate_and_infer_types();
                     m_all_elements_bitwise_identical = are_all_data_elements_bitwise_identical();
                 }
 
@@ -84,7 +83,6 @@ namespace ngraph
                     : Constant(type, shape)
                 {
                     fill_data(type, value);
-                    constructor_validate_and_infer_types();
                     m_all_elements_bitwise_identical = true;
                 }
 
@@ -157,6 +155,7 @@ namespace ngraph
                 }
 
                 Constant(const Constant& other);
+                Constant(const Constant& other, const Shape& new_shape);
                 Constant& operator=(const Constant&) = delete;
 
                 virtual ~Constant() override;
@@ -171,6 +170,7 @@ namespace ngraph
 
                 bool evaluate(const HostTensorVector& outputs,
                               const HostTensorVector& inputs) const override;
+                bool has_evaluate() const override;
                 bool evaluate_lower(const HostTensorVector& outputs) const override;
                 bool evaluate_upper(const HostTensorVector& outputs) const override;
 
@@ -214,6 +214,7 @@ namespace ngraph
                 /// count
                 ///
                 /// \param shape The shape of the tensor constant.
+                NGRAPH_DEPRECATED("Use Constant c-tor with shape argument instead")
                 void set_data_shape(const Shape& shape);
 
                 /// \brief Wrapper around constructing a shared_ptr of a Constant
@@ -646,24 +647,26 @@ namespace ngraph
                 }
                 template <
                     ngraph::element::Type_t Type,
+                    typename ValueT,
                     typename std::enable_if<Type == ngraph::element::Type_t::u4, bool>::type = true>
-                static ngraph::fundamental_type_for<Type>
-                    value_in_range(const ngraph::fundamental_type_for<Type>& value)
+                static ngraph::fundamental_type_for<Type> value_in_range(const ValueT& value)
                 {
-                    NGRAPH_CHECK(0 <= value && value <= 15,
+                    const auto result = ngraph::fundamental_type_for<Type>(value);
+                    NGRAPH_CHECK(0 <= result && result <= 15,
                                  "assigned value out of range u4 values");
-                    return value;
+                    return result;
                 }
 
                 template <
                     ngraph::element::Type_t Type,
+                    typename ValueT,
                     typename std::enable_if<Type == ngraph::element::Type_t::i4, bool>::type = true>
-                static ngraph::fundamental_type_for<Type>
-                    value_in_range(const ngraph::fundamental_type_for<Type>& value)
+                static ngraph::fundamental_type_for<Type> value_in_range(const ValueT& value)
                 {
-                    NGRAPH_CHECK(-8 <= value && value <= 7,
+                    const auto result = ngraph::fundamental_type_for<Type>(value);
+                    NGRAPH_CHECK(-8 <= result && result <= 7,
                                  "assigned value out of range i4 values");
-                    return value;
+                    return result;
                 }
 
                 bool are_all_data_elements_bitwise_identical() const;

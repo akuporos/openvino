@@ -34,23 +34,27 @@ void op::v0::Unsqueeze::validate_and_infer_types()
     const auto data_rank = data_partial_shape.rank();
 
     const auto axes_constant = get_constant_from_source(input_value(1));
+    auto axes_pshape = get_input_partial_shape(1);
+
+    NODE_VALIDATION_CHECK(this,
+                          axes_pshape.rank().compatible(0) || axes_pshape.rank().compatible(1),
+                          "Second input (axes) should not be of rank higher than 1. Got: ",
+                          axes_pshape.rank().get_length());
+
     if (data_rank.is_dynamic() || !axes_constant)
     {
         set_output_type(0, get_input_element_type(0), PartialShape::dynamic());
         return;
     }
 
-    uint64_t data_rank_value = data_partial_shape.rank().get_length();
-
-    // Get value of axes from Constant
     const auto axes_values = axes_constant->cast_vector<int64_t>();
+    uint64_t data_rank_value = data_partial_shape.rank().get_length();
     const int64_t expanded_rank = data_rank_value + axes_values.size();
 
     NODE_VALIDATION_CHECK(this, !axes_values.empty(), "'axes' input is mandatory");
 
     auto normalized_axes = normalize_axes(this->description(), axes_values, expanded_rank);
     set<int64_t> axes(begin(normalized_axes), end(normalized_axes));
-
     vector<Dimension> output_shape{data_partial_shape};
     for (auto axis : axes)
     {
@@ -143,6 +147,22 @@ bool op::v0::Unsqueeze::evaluate(const HostTensorVector& outputs,
     return unsqueeze::evaluate_unsqueeze(inputs[0], inputs[1], outputs[0]);
 }
 
+bool op::v0::Unsqueeze::has_evaluate() const
+{
+    NGRAPH_OP_SCOPE(v0_Unsqueeze_has_evaluate);
+    switch (get_input_element_type(0))
+    {
+    case ngraph::element::i32:
+    case ngraph::element::i64:
+    case ngraph::element::u32:
+    case ngraph::element::u64:
+    case ngraph::element::f16:
+    case ngraph::element::f32: return true;
+    default: break;
+    }
+    return false;
+}
+
 bool op::v0::Unsqueeze::evaluate_lower(const HostTensorVector& output_values) const
 {
     if (!input_value(1).get_tensor().has_and_set_bound())
@@ -170,19 +190,7 @@ bool op::v0::Unsqueeze::constant_fold(OutputVector& output_values,
     if (auto data_const =
             std::dynamic_pointer_cast<op::Constant>(inputs_values[0].get_node_shared_ptr()))
     {
-        // In case if data constant has single consumer we can change it shape without making a copy
-        // Otherwise we create Constant copy with shape from unsqueeze node
-        if (data_const->output(0).get_target_inputs().size() == 1)
-        {
-            data_const->set_data_shape(shape);
-            data_const->validate_and_infer_types();
-            output_values[0] = data_const;
-        }
-        else
-        {
-            output_values[0] = std::make_shared<op::Constant>(
-                data_const->get_element_type(), shape, data_const->get_data_ptr());
-        }
+        output_values[0] = std::make_shared<op::Constant>(*data_const, shape);
         return true;
     }
     return false;
