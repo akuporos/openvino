@@ -54,7 +54,7 @@ def import_core_modules(silent: bool, path_to_module: str):
         # TODO: it is temporary import to check that nGraph python API is available. But in future
         # we need to replace it with Frontend imports
         from ngraph.impl.op import Parameter  # pylint: disable=import-error,no-name-in-module
-        from _pyngraph import PartialShape, Dimension  # pylint: disable=import-error,no-name-in-module
+        from pyopenvino import PartialShape, Dimension  # pylint: disable=import-error,no-name-in-module
 
         import openvino  # pylint: disable=import-error,no-name-in-module
         import ngraph  # pylint: disable=import-error,no-name-in-module

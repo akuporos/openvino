@@ -1,0 +1,15 @@
+// Copyright (C) 2018-2021 Intel Corporation
+// SPDX-License-Identifier: Apache-2.0
+//
+
+#include "graph/passes/regmodule_passes.hpp"
+#include <pybind11/pybind11.h>
+
+namespace py = pybind11;
+
+void regmodule_passes(py::module m)
+{
+    py::module m_passes =
+        m.def_submodule("passes", "Package ngraph.impl.passes wraps ngraph::passes");
+    regclass_passes_Manager(m_passes);
+}
