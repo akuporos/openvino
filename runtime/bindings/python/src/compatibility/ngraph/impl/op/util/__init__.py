@@ -7,10 +7,10 @@ Low level wrappers for the nGraph c++ api in ngraph::op::util.
 """
 # flake8: noqa
 
-from pyopenvino.op.util import UnaryElementwiseArithmetic
-from pyopenvino.op.util import BinaryElementwiseComparison
-from pyopenvino.op.util import BinaryElementwiseArithmetic
-from pyopenvino.op.util import BinaryElementwiseLogical
-from pyopenvino.op.util import OpAnnotations
-from pyopenvino.op.util import ArithmeticReduction
-from pyopenvino.op.util import IndexReduction
+from _pyngraph.op.util import UnaryElementwiseArithmetic
+from _pyngraph.op.util import BinaryElementwiseComparison
+from _pyngraph.op.util import BinaryElementwiseArithmetic
+from _pyngraph.op.util import BinaryElementwiseLogical
+from _pyngraph.op.util import OpAnnotations
+from _pyngraph.op.util import ArithmeticReduction
+from _pyngraph.op.util import IndexReduction

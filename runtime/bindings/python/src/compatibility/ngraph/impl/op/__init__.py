@@ -10,7 +10,7 @@ Low level wrappers for the nGraph c++ api in ngraph::op.
 
 import numpy as np
 
-from pyopenvino.op import Constant
+from _pyngraph.op import Constant
 
 """Retrieve Constant inner data.
 
@@ -20,4 +20,4 @@ from pyopenvino.op import Constant
 """
 Constant.get_data = lambda self: np.array(self, copy=True)
 
-from pyopenvino.op import Parameter
+from _pyngraph.op import Parameter

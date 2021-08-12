@@ -34,19 +34,19 @@ if sys.platform == "win32":
             else:
                 os.environ["PATH"] = os.path.abspath(lib_path) + ";" + os.environ["PATH"]
 
-from pyopenvino import Dimension
-from pyopenvino import Function
-from pyopenvino import Input
-from pyopenvino import Output
-from pyopenvino import Node
-from pyopenvino import Type
-from pyopenvino import PartialShape
-from pyopenvino import Shape
-from pyopenvino import Strides
-from pyopenvino import CoordinateDiff
-from pyopenvino import AxisSet
-from pyopenvino import AxisVector
-from pyopenvino import Coordinate
-from pyopenvino import Output
+from _pyngraph import Dimension
+from _pyngraph import Function
+from _pyngraph import Input
+from _pyngraph import Output
+from _pyngraph import Node
+from _pyngraph import Type
+from _pyngraph import PartialShape
+from _pyngraph import Shape
+from _pyngraph import Strides
+from _pyngraph import CoordinateDiff
+from _pyngraph import AxisSet
+from _pyngraph import AxisVector
+from _pyngraph import Coordinate
+from _pyngraph import Output
 
-from pyopenvino import util
+from _pyngraph import util

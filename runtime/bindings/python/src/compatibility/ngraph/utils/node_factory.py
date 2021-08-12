@@ -4,7 +4,7 @@
 from functools import partial
 from typing import Any, Dict, List, Optional, Union
 
-from pyopenvino import NodeFactory as _NodeFactory
+from _pyngraph import NodeFactory as _NodeFactory
 
 from ngraph.impl import Node, Output
 
