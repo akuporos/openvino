@@ -10,7 +10,7 @@
 #include <string>
 
 #include "ngraph/coordinate_diff.hpp" // ngraph::CoordinateDiff
-#include "graph/coordinate_diff.hpp"
+#include "coordinate_diff.hpp"
 
 namespace py = pybind11;
 

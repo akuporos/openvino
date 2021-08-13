@@ -12,7 +12,7 @@
 
 #include "ngraph/op/constant.hpp"
 #include "ngraph/shape.hpp"
-#include "graph/ops/constant.hpp"
+#include "constant.hpp"
 
 namespace py = pybind11;
 

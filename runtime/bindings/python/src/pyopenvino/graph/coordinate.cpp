@@ -6,7 +6,7 @@
 #include <pybind11/stl.h>
 
 #include "ngraph/coordinate.hpp" // ngraph::Coordinate
-#include "graph/coordinate.hpp"
+#include "coordinate.hpp"
 
 namespace py = pybind11;
 

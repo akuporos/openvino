@@ -10,7 +10,7 @@
 #include <string>
 
 #include "ngraph/shape.hpp" // ngraph::Shape
-#include "graph/shape.hpp"
+#include "shape.hpp"
 
 namespace py = pybind11;
 

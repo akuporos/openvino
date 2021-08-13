@@ -10,7 +10,7 @@
 #include <string>
 
 #include "ngraph/dimension.hpp" // ngraph::Dimension
-#include "graph/dimension.hpp"
+#include "dimension.hpp"
 
 namespace py = pybind11;
 

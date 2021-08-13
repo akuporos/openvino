@@ -6,7 +6,7 @@
 
 #include <pybind11/pybind11.h>
 
-#include "graph/types/element_type.hpp"
+#include "element_type.hpp"
 
 namespace py = pybind11;
 

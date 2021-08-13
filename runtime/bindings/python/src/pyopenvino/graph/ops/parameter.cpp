@@ -9,7 +9,7 @@
 #include "ngraph/node.hpp"
 #include "ngraph/op/parameter.hpp"
 #include "ngraph/partial_shape.hpp" // ngraph::PartialShape
-#include "graph/ops/parameter.hpp"
+#include "parameter.hpp"
 
 namespace py = pybind11;
 

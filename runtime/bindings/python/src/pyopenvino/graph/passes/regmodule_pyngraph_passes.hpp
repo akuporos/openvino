@@ -5,7 +5,7 @@
 #pragma once
 
 #include <pybind11/pybind11.h>
-#include "graph/passes/manager.hpp"
+#include "manager.hpp"
 
 namespace py = pybind11;
 

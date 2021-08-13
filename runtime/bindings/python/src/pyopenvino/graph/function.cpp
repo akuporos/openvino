@@ -8,7 +8,7 @@
 #include "ngraph/function.hpp"     // ngraph::Function
 #include "ngraph/op/parameter.hpp" // ngraph::op::Parameter
 #include "ngraph/op/sink.hpp"
-#include "graph/function.hpp"
+#include "function.hpp"
 
 namespace py = pybind11;
 

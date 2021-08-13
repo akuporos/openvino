@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 //
 
-#include "graph/ops/util/regmodule_op_util.hpp"
+#include "regmodule_pyngraph_op_util.hpp"
 #include <pybind11/pybind11.h>
 
 namespace py = pybind11;

@@ -7,7 +7,7 @@
 
 #include "ngraph/op/parameter.hpp"
 #include "ngraph/type/element_type.hpp"
-#include "graph/types/element_type.hpp"
+#include "element_type.hpp"
 
 namespace py = pybind11;
 

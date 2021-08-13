@@ -6,7 +6,7 @@
 #include <pybind11/stl.h>
 
 #include "ngraph/op/util/binary_elementwise_logical.hpp"
-#include "graph/ops/util/binary_elementwise_logical.hpp"
+#include "binary_elementwise_logical.hpp"
 
 namespace py = pybind11;
 

@@ -6,7 +6,7 @@
 #include <pybind11/stl.h>
 
 #include "ngraph/op/util/unary_elementwise_arithmetic.hpp"
-#include "graph/ops/util/unary_elementwise_arithmetic.hpp"
+#include "unary_elementwise_arithmetic.hpp"
 
 namespace py = pybind11;
 

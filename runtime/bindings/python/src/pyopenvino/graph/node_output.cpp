@@ -6,7 +6,7 @@
 
 #include "dict_attribute_visitor.hpp"
 #include "ngraph/node_output.hpp"
-#include "graph/node_output.hpp"
+#include "node_output.hpp"
 
 namespace py = pybind11;
 

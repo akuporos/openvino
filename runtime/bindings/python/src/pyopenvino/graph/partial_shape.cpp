@@ -12,7 +12,7 @@
 #include "ngraph/dimension.hpp"     // ngraph::Dimension
 #include "ngraph/partial_shape.hpp" // ngraph::PartialShape
 #include "ngraph/shape.hpp"         // ngraph::Shape
-#include "graph/partial_shape.hpp"
+#include "partial_shape.hpp"
 
 namespace py = pybind11;
 

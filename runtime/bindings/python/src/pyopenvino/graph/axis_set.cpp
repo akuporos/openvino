@@ -10,7 +10,7 @@
 #include <string>
 
 #include "ngraph/axis_set.hpp" // ngraph::AxisSet
-#include "graph/axis_set.hpp"
+#include "axis_set.hpp"
 
 namespace py = pybind11;
 

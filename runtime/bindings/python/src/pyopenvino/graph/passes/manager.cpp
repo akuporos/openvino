@@ -11,7 +11,7 @@
 #include "ngraph/pass/constant_folding.hpp"
 #include "ngraph/pass/validate.hpp"
 
-#include "graph/passes/manager.hpp"
+#include "manager.hpp"
 
 namespace py = pybind11;
 

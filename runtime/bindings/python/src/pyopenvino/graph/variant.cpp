@@ -5,7 +5,7 @@
 #include <pybind11/pybind11.h>
 
 #include "ngraph/variant.hpp" // ngraph::Variant
-#include "graph/variant.hpp"
+#include "variant.hpp"
 
 namespace py = pybind11;
 

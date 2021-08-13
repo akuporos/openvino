@@ -6,7 +6,7 @@
 #include <pybind11/stl.h>
 
 #include "ngraph/op/util/binary_elementwise_comparison.hpp"
-#include "graph/ops/util/binary_elementwise_comparison.hpp"
+#include "binary_elementwise_comparison.hpp"
 
 namespace py = pybind11;
 

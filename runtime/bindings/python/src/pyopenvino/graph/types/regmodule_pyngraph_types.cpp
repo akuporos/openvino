@@ -4,7 +4,7 @@
 
 #include <pybind11/pybind11.h>
 
-#include "graph/types/regmodule_types.hpp"
+#include "regmodule_pyngraph_types.hpp"
 
 namespace py = pybind11;
 

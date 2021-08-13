@@ -9,7 +9,7 @@
 #include "frontend_manager.hpp"
 #include "frontend_manager/frontend_exceptions.hpp"
 #include "frontend_manager/frontend_manager.hpp"
-#include "graph/function.hpp"
+#include "../function.hpp"
 
 namespace py = pybind11;
 

@@ -7,7 +7,7 @@
 
 #include "ngraph/op/op.hpp"
 #include "ngraph/op/util/index_reduction.hpp"
-#include "graph/ops/util/index_reduction.hpp"
+#include "index_reduction.hpp"
 
 namespace py = pybind11;
 

@@ -13,9 +13,9 @@
 #include "ngraph/op/multiply.hpp"
 #include "ngraph/op/subtract.hpp"
 #include "ngraph/variant.hpp"
-#include "graph/node.hpp"
-#include "graph/rt_map.hpp"
-#include "graph/variant.hpp"
+#include "node.hpp"
+#include "rt_map.hpp"
+#include "variant.hpp"
 
 namespace py = pybind11;
 

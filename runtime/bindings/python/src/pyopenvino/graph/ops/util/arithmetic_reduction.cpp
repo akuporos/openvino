@@ -7,7 +7,7 @@
 
 #include "ngraph/op/op.hpp"
 #include "ngraph/op/util/arithmetic_reduction.hpp"
-#include "graph/ops/util/arithmetic_reduction.hpp"
+#include "arithmetic_reduction.hpp"
 
 namespace py = pybind11;
 

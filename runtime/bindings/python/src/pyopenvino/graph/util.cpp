@@ -5,7 +5,7 @@
 #include <pybind11/numpy.h>
 
 #include "ngraph/validation_util.hpp"
-#include "graph/util.hpp"
+#include "util.hpp"
 
 namespace py = pybind11;
 

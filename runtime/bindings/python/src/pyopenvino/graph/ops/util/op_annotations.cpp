@@ -6,7 +6,7 @@
 #include <pybind11/stl.h>
 
 #include "ngraph/op/util/op_annotations.hpp"
-#include "graph/ops/util/op_annotations.hpp"
+#include "op_annotations.hpp"
 
 namespace py = pybind11;
 

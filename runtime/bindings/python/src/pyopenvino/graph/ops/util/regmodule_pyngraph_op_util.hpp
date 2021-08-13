@@ -5,13 +5,13 @@
 #pragma once
 
 #include <pybind11/pybind11.h>
-#include "graph/ops/util/arithmetic_reduction.hpp"
-#include "graph/ops/util/binary_elementwise_arithmetic.hpp"
-#include "graph/ops/util/binary_elementwise_comparison.hpp"
-#include "graph/ops/util/binary_elementwise_logical.hpp"
-#include "graph/ops/util/index_reduction.hpp"
-#include "graph/ops/util/op_annotations.hpp"
-#include "graph/ops/util/unary_elementwise_arithmetic.hpp"
+#include "arithmetic_reduction.hpp"
+#include "binary_elementwise_arithmetic.hpp"
+#include "binary_elementwise_comparison.hpp"
+#include "binary_elementwise_logical.hpp"
+#include "index_reduction.hpp"
+#include "op_annotations.hpp"
+#include "unary_elementwise_arithmetic.hpp"
 
 namespace py = pybind11;
 

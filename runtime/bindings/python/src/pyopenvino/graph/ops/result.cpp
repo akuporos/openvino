@@ -8,7 +8,7 @@
 
 #include "ngraph/node.hpp"
 #include "ngraph/op/result.hpp"
-#include "graph/ops/result.hpp"
+#include "result.hpp"
 
 namespace py = pybind11;
 

@@ -94,6 +94,10 @@ add_subdirectory(docs)
 add_subdirectory(tools)
 add_subdirectory(scripts)
 
+if(ENABLE_PYTHON_API)
+    add_subdirectory(runtime/bindings/python/src/pyopenvino)
+endif()
+
 #
 # CPack
 #

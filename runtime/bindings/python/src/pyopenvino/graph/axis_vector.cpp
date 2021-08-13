@@ -6,7 +6,7 @@
 #include <pybind11/stl.h>
 
 #include "ngraph/axis_vector.hpp" // ngraph::AxisVector
-#include "graph/axis_vector.hpp"
+#include "axis_vector.hpp"
 
 namespace py = pybind11;
 

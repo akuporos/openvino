@@ -10,7 +10,7 @@
 #include <string>
 
 #include "ngraph/strides.hpp" // ngraph::Strides
-#include "graph/strides.hpp"
+#include "strides.hpp"
 
 namespace py = pybind11;
 
