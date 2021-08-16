@@ -4,13 +4,6 @@
 
 cmake_minimum_required (VERSION 3.13)
 
-project (pyngraph)
-
-if(NOT DEFINED OpenVINO_SOURCE_DIR)
-    find_package(InferenceEngineDeveloperPackage QUIET)
-    find_package(ngraph REQUIRED)
-endif()
-
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/pybind11 EXCLUDE_FROM_ALL)
 
 # PYTHON_VERSION_MAJOR and PYTHON_VERSION_MINOR are defined inside pybind11
@@ -51,19 +44,8 @@ if(NOT CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     add_compile_options(-Wno-deprecated-declarations -Wno-undef)
 endif()
 
-# create target
-
-file(GLOB_RECURSE SOURCES src/pyngraph/*.cpp)
-
-pybind11_add_module(_${PROJECT_NAME} MODULE ${SOURCES})
-
-target_include_directories(_${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src")
-
-target_link_libraries(_${PROJECT_NAME} PRIVATE ngraph::ngraph ngraph::frontend_manager)
-
-if (TARGET ngraph::onnx_ngraph_frontend)
-    add_dependencies(_${PROJECT_NAME} ngraph::onnx_ngraph_frontend)
-endif()
+add_subdirectory (src/pyopenvino)
+add_subdirectory (src/pyngraph)
 
 if(NGRAPH_UNIT_TEST_ENABLE)
     add_subdirectory(tests/mock/mock_py_ngraph_frontend)
@@ -77,6 +59,7 @@ if(NGRAPH_UNIT_TEST_ENABLE)
     add_subdirectory(tests/mock/pyngraph_fe_mock_api)
     add_dependencies(_${PROJECT_NAME} pybind_mock_frontend)
 endif()
+<<<<<<< HEAD
 
 # perform copy
 if(OpenVINO_SOURCE_DIR)
@@ -110,3 +93,5 @@ if(OpenVINO_SOURCE_DIR OR InferenceEngineDeveloperPackage_FOUND)
 
     ie_cpack(pyngraph_${PYTHON_VERSION})
 endif()
+=======
+>>>>>>> 90acc801fc707960b0ce0e9f4ae0e106c16d7a7f
