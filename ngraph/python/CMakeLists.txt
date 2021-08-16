@@ -59,7 +59,6 @@ if(NGRAPH_UNIT_TEST_ENABLE)
     add_subdirectory(tests/mock/pyngraph_fe_mock_api)
     add_dependencies(_${PROJECT_NAME} pybind_mock_frontend)
 endif()
-<<<<<<< HEAD
 
 # perform copy
 if(OpenVINO_SOURCE_DIR)
@@ -93,5 +92,3 @@ if(OpenVINO_SOURCE_DIR OR InferenceEngineDeveloperPackage_FOUND)
 
     ie_cpack(pyngraph_${PYTHON_VERSION})
 endif()
-=======
->>>>>>> 90acc801fc707960b0ce0e9f4ae0e106c16d7a7f
