@@ -3,7 +3,7 @@
 
 import os
 from datetime import datetime
-from statistics import median
+from math import ceil
 import numpy as np
 
 from openvino.inference_engine import IENetwork, IECore, get_version, StatusCode
@@ -11,6 +11,10 @@ from openvino.inference_engine import IENetwork, IECore, get_version, StatusCode
 from .utils.constants import CPU_DEVICE_NAME, GPU_DEVICE_NAME, XML_EXTENSION, BIN_EXTENSION
 from .utils.logging import logger
 from .utils.utils import get_duration_seconds
+
+
+def percentile(values, percent):
+    return values[ceil(len(values) * percent / 100) - 1]
 
 class Benchmark:
     def __init__(self, device: str, number_infer_requests: int = None, number_iterations: int = None,
@@ -47,6 +51,9 @@ class Benchmark:
     def set_config(self, config = {}):
         for device in config.keys():
             self.ie.set_config(config[device], device)
+
+    def set_cache_dir(self, cache_dir: str):
+        self.ie.set_config({'CACHE_DIR': cache_dir}, '')
 
     def read_network(self, path_to_model: str):
         model_filename = os.path.abspath(path_to_model)
@@ -89,13 +96,8 @@ class Benchmark:
         latency = 0
         # warming up - out of scope
         if self.api_type == 'sync':
-            # TODO: Remove duplicate
-            if self.mode == 'pybind':
-                infer_request.infer()
-                latency = infer_request.latency
-            else:
-                infer_request.infer()
-                latency = infer_request.latency
+            infer_request.infer()
+            latency = infer_request.latency
         else:
             if self.mode == 'pybind':
                 infer_requests.async_infer()
@@ -111,7 +113,7 @@ class Benchmark:
                 latency = infer_request.latency
         return latency
 
-    def infer(self, exe_network=None, batch_size=1, infer_requests=None, progress_bar=None):
+    def infer(self, latency_percentile, exe_network=None, batch_size=1, infer_requests=None, progress_bar=None):
         progress_count = 0
         if self.mode == "cython":
             infer_requests = exe_network.requests
@@ -122,25 +124,27 @@ class Benchmark:
 
         times = []
         in_fly = set()
+
+        def add_time(request, status, userdata):
+            if not(status == StatusCode.OK or
+                status == StatusCode.INFER_NOT_STARTED):
+                raise Exception('Request', request, 'failed!')
+            else:
+                times += [request.latency]
+
+        if self.mode == "pybind":
+            infer_requests.set_infer_callback(add_time)
+
         # Start inference & calculate performance
         # to align number if iterations to guarantee that last infer requests are executed in the same conditions **/
         while (self.niter and iteration < self.niter) or \
               (self.duration_seconds and exec_time < self.duration_seconds) or \
               (self.api_type == 'async' and iteration % self.nireq):
             if self.api_type == 'sync':
-                # TODO: remove duplicate
-                if self.mode == 'pybind':
-                    infer_requests[0].infer()
-                    times.append(infer_requests[0].latency)
-                else:
-                    infer_requests[0].infer()
-                    times.append(infer_requests[0].latency)
+                infer_requests[0].infer()
+                times.append(infer_requests[0].latency)
             else:
                 if self.mode == 'pybind':
-                    queue_status = infer_requests.get_idle_request_status()
-                    if not(queue_status == StatusCode.OK or
-                           queue_status == StatusCode.INFER_NOT_STARTED):
-                        raise Exception("Idle request failed!")
                     infer_requests.async_infer()
                 else:
                     infer_request_id = exe_network.get_idle_request_id()
@@ -186,12 +190,12 @@ class Benchmark:
 
         total_duration_sec = (datetime.utcnow() - start_time).total_seconds()
         if self.mode == 'pybind' and self.api_type == "async":
-            times = infer_requests.latencies
+            pass # times are appended during callback
         else:
             for infer_request_id in in_fly:
                 times.append(infer_requests[infer_request_id].latency)
         times.sort()
-        latency_ms = median(times)
+        latency_ms = percentile(times, latency_percentile)
         fps = batch_size * 1000 / latency_ms if self.api_type == 'sync' else batch_size * iteration / total_duration_sec
         if progress_bar:
             progress_bar.finish()
