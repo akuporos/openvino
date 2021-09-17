@@ -1,7 +1,7 @@
 # Copyright (C) 2018-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from openvino.offline_transformations import ApplyMOCTransformations, ApplyPOTTransformations
+from openvino.offline_transformations import ApplyMOCTransformations, ApplyPOTTransformations, ApplyLowLatencyTransformation
 #, ApplyLowLatencyTransformation, ApplyPruningTransformation, ApplyPOTTransformations
 
 from ngraph.impl.op import Parameter
@@ -34,13 +34,13 @@ def test_pot_transformations():
     assert len(f.get_ops()) == 3
 
 
-# def test_low_latency_transformations():
-#     net = get_test_cnnnetwork()
-#     ApplyLowLatencyTransformation(net, True)
+def test_low_latency_transformation():
+    f = get_test_cnnnetwork()
 
-#     f = ng.function_from_cnn(net)
-#     assert f != None
-#     assert len(f.get_ops()) == 3
+    ApplyLowLatencyTransformation(f, True)
+
+    assert f != None
+    assert len(f.get_ops()) == 3
 
 
 # def test_pruning_transformations():

@@ -1,4 +1,4 @@
-from openvino.pyopenvino.offline_transformations import ApplyMOCTransformations, ApplyPOTTransformations
+from openvino.pyopenvino.offline_transformations import ApplyMOCTransformations, ApplyPOTTransformations, ApplyLowLatencyTransformation
 #    ApplyLowLatencyTransformation, \
 #    ApplyPOTTransformations, \
 #    ApplyPruningTransformation, \

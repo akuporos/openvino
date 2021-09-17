@@ -38,12 +38,15 @@ void regmodule_offline_transformations(py::module m) {
         py::arg("function"),
         py::arg("device"));
 
-    // m_offline_transformations.def("ApplyLowLatencyTransformation",
-    //                               [](InferenceEnginePython::IENetwork network, bool use_const_initializer) {
-    //                                   ov::pass::Manager manager;
-    //                                   manager.register_pass<ov::pass::LowLatency2>(use_const_initializer);
-    //                                   manager.run_passes(network.actual->getFunction());
-    //                               });
+    m_offline_transformations.def(
+        "ApplyLowLatencyTransformation",
+        [](std::shared_ptr<ngraph::Function> function, bool use_const_initializer) {
+            ov::pass::Manager manager;
+            manager.register_pass<ov::pass::LowLatency2>(use_const_initializer);
+            manager.run_passes(function);
+        },
+        py::arg("function"),
+        py::arg("use_const_initializer"));
 
     // m_offline_transformations.def("ApplyPruningTransformation", [](InferenceEnginePython::IENetwork network) {
     //     ov::pass::Manager manager;
