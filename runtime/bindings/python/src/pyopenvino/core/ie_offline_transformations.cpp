@@ -48,17 +48,23 @@ void regmodule_offline_transformations(py::module m) {
         py::arg("function"),
         py::arg("use_const_initializer"));
 
-    // m_offline_transformations.def("ApplyPruningTransformation", [](InferenceEnginePython::IENetwork network) {
-    //     ov::pass::Manager manager;
-    //     manager.register_pass<ngraph::pass::Pruning>();
-    //     manager.run_passes(network.actual->getFunction());
-    // });
+    m_offline_transformations.def(
+        "ApplyPruningTransformation",
+        [](std::shared_ptr<ngraph::Function> function) {
+            ov::pass::Manager manager;
+            manager.register_pass<ngraph::pass::Pruning>();
+            manager.run_passes(function);
+        },
+        py::arg("function"));
 
-    // m_offline_transformations.def("GenerateMappingFile",
-    //                               [](InferenceEnginePython::IENetwork network, std::string path, bool extract_names)
-    //                               {
-    //                                   ov::pass::Manager manager;
-    //                                   manager.register_pass<ngraph::pass::GenerateMappingFile>(path, extract_names);
-    //                                   manager.run_passes(network.actual->getFunction());
-    //                               });
+    m_offline_transformations.def(
+        "GenerateMappingFile",
+        [](std::shared_ptr<ngraph::Function> function, std::string path, bool extract_names) {
+            ov::pass::Manager manager;
+            manager.register_pass<ngraph::pass::GenerateMappingFile>(path, extract_names);
+            manager.run_passes(function);
+        },
+        py::arg("function"),
+        py::arg("path"),
+        py::arg("extract_names"));
 }
