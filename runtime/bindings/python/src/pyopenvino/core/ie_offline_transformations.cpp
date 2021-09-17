@@ -20,7 +20,7 @@ void regmodule_offline_transformations(py::module m) {
 
     m_offline_transformations.def(
         "ApplyMOCTransformations",
-        [](std::shared_ptr<ngraph::Function> function, bool cf) {
+        [](std::shared_ptr<ov::Function> function, bool cf) {
             ov::pass::Manager manager;
             manager.register_pass<ngraph::pass::MOCTransformations>(cf);
             manager.run_passes(function);
@@ -30,7 +30,7 @@ void regmodule_offline_transformations(py::module m) {
 
     m_offline_transformations.def(
         "ApplyPOTTransformations",
-        [](std::shared_ptr<ngraph::Function> function, std::string device) {
+        [](std::shared_ptr<ov::Function> function, std::string device) {
             ov::pass::Manager manager;
             manager.register_pass<ngraph::pass::POTTransformations>(std::move(device));
             manager.run_passes(function);
@@ -40,13 +40,13 @@ void regmodule_offline_transformations(py::module m) {
 
     m_offline_transformations.def(
         "ApplyLowLatencyTransformation",
-        [](std::shared_ptr<ngraph::Function> function, bool use_const_initializer) {
+        [](std::shared_ptr<ov::Function> function, bool use_const_initializer = true) {
             ov::pass::Manager manager;
             manager.register_pass<ov::pass::LowLatency2>(use_const_initializer);
             manager.run_passes(function);
         },
         py::arg("function"),
-        py::arg("use_const_initializer"));
+        py::arg("use_const_initializer") = true);
 
     m_offline_transformations.def(
         "ApplyPruningTransformation",
@@ -59,7 +59,7 @@ void regmodule_offline_transformations(py::module m) {
 
     m_offline_transformations.def(
         "GenerateMappingFile",
-        [](std::shared_ptr<ngraph::Function> function, std::string path, bool extract_names) {
+        [](std::shared_ptr<ov::Function> function, std::string path, bool extract_names) {
             ov::pass::Manager manager;
             manager.register_pass<ngraph::pass::GenerateMappingFile>(path, extract_names);
             manager.run_passes(function);

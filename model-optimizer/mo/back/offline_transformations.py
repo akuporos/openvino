@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
+from ngraph import function_from_cnn
 
 from mo.utils.error import Error
 from mo.utils.cli_parser import parse_transform
@@ -17,8 +18,7 @@ def get_available_transformations():
         return {}
 
 
-# net should be openvino.inference_engine.IENetwork type, but IE Engine is still optional dependency
-def apply_moc_transformations(net: object, transforms: list):
+def apply_moc_transformations(function: object, transforms: list):
     from openvino.offline_transformations import ApplyMOCTransformations  # pylint: disable=import-error,no-name-in-module
     available_transformations = get_available_transformations()
 
@@ -26,9 +26,9 @@ def apply_moc_transformations(net: object, transforms: list):
         if name not in available_transformations.keys():
             raise Error("Transformation {} is not available.".format(name))
 
-        available_transformations[name](net, **args)
+        available_transformations[name](function, **args)
 
-    ApplyMOCTransformations(net, False)
+    ApplyMOCTransformations(function, False)
 
 
 def apply_offline_transformations(input_model: str, framework: str, transforms: list):
@@ -40,10 +40,11 @@ def apply_offline_transformations(input_model: str, framework: str, transforms: 
     from openvino.offline_transformations import GenerateMappingFile  # pylint: disable=import-error,no-name-in-module
 
     net = read_network(input_model + "_tmp.xml", input_model + "_tmp.bin")
-    apply_moc_transformations(net, transforms)
+    function = function_from_cnn(net)
+    apply_moc_transformations(function, transforms)
     net.serialize(input_model + ".xml", input_model + ".bin")
     path_to_mapping = input_model + ".mapping"
-    GenerateMappingFile(net, path_to_mapping.encode('utf-8'), extract_names)
+    GenerateMappingFile(function, path_to_mapping.encode('utf-8'), extract_names)
 
 
 if __name__ == "__main__":
