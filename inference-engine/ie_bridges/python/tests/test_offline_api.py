@@ -1,52 +1,51 @@
 # Copyright (C) 2018-2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from openvino.inference_engine import IECore, IENetwork
-from openvino.offline_transformations import ApplyMOCTransformations, ApplyLowLatencyTransformation, ApplyPruningTransformation
+from openvino.offline_transformations import ApplyMOCTransformations
+#, ApplyLowLatencyTransformation, ApplyPruningTransformation, ApplyPOTTransformations
 
-import ngraph as ng
 from ngraph.impl.op import Parameter
 from ngraph.impl import Function, Shape, Type
+from ngraph import relu
 
-from conftest import model_path
-
-
-test_net_xml, test_net_bin = model_path()
 
 def get_test_cnnnetwork():
     element_type = Type.f32
     param = Parameter(element_type, Shape([1, 3, 22, 22]))
-    relu = ng.relu(param)
-    func = Function([relu], [param], 'test')
-    caps = Function.to_capsule(func)
-
-    cnnNetwork = IENetwork(caps)
-    assert cnnNetwork != None
-    return cnnNetwork
+    op = relu(param)
+    return Function([op], [param], 'test')
 
 
 def test_moc_transformations():
-    net = get_test_cnnnetwork()
-    ApplyMOCTransformations(net, False)
+    f = get_test_cnnnetwork()
 
-    f = ng.function_from_cnn(net)
+    ApplyMOCTransformations(f, False)
+
     assert f != None
     assert len(f.get_ops()) == 3
 
 
-def test_low_latency_transformations():
-    net = get_test_cnnnetwork()
-    ApplyLowLatencyTransformation(net)
+# def test_low_latency_transformations():
+#     net = get_test_cnnnetwork()
+#     ApplyLowLatencyTransformation(net, True)
 
-    f = ng.function_from_cnn(net)
-    assert f != None
-    assert len(f.get_ops()) == 3
+#     f = ng.function_from_cnn(net)
+#     assert f != None
+#     assert len(f.get_ops()) == 3
 
 
-def test_pruning_transformations():
-    net = get_test_cnnnetwork()
-    ApplyPruningTransformation(net)
+# def test_pruning_transformations():
+#     net = get_test_cnnnetwork()
+#     ApplyPruningTransformation(net)
 
-    f = ng.function_from_cnn(net)
-    assert f != None
-    assert len(f.get_ops()) == 3
+#     f = ng.function_from_cnn(net)
+#     assert f != None
+#     assert len(f.get_ops()) == 3
+
+# def test_pot_transformations():
+#     net = get_test_cnnnetwork()
+#     ApplyPOTTransformations(net, "GNA")
+
+#     f = ng.function_from_cnn(net)
+#     assert f != None
+#     assert len(f.get_ops()) == 3

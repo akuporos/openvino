@@ -37,7 +37,7 @@ endif()
 
 configure_file(${SETUP_ENV} "${CMAKE_CURRENT_SOURCE_DIR}/.env" @ONLY)
 
-add_custom_target(ie_wheel ALL DEPENDS ie_api offline_transformations_api)
+add_custom_target(ie_wheel ALL DEPENDS ie_api)
 
 foreach(_target ie_libraries ie_plugins _pyngraph)
     if(TARGET ${_target})
