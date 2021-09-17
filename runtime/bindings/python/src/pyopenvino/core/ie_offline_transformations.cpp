@@ -18,18 +18,25 @@ namespace py = pybind11;
 void regmodule_offline_transformations(py::module m) {
     py::module m_offline_transformations = m.def_submodule("offline_transformations", "Offline transformations module");
 
-    m_offline_transformations.def("ApplyMOCTransformations", [](std::shared_ptr<ngraph::Function> function, bool cf) {
-        ov::pass::Manager manager;
-        manager.register_pass<ngraph::pass::MOCTransformations>(cf);
-        manager.run_passes(function);
-    });
+    m_offline_transformations.def(
+        "ApplyMOCTransformations",
+        [](std::shared_ptr<ngraph::Function> function, bool cf) {
+            ov::pass::Manager manager;
+            manager.register_pass<ngraph::pass::MOCTransformations>(cf);
+            manager.run_passes(function);
+        },
+        py::arg("function"),
+        py::arg("cf"));
 
-    // m_offline_transformations.def("ApplyPOTTransformations",
-    //                               [](InferenceEnginePython::IENetwork network, std::string device) {
-    //                                   ov::pass::Manager manager;
-    //                                   manager.register_pass<ngraph::pass::POTTransformations>(std::move(device));
-    //                                   manager.run_passes(network.actual->getFunction());
-    //                               });
+    m_offline_transformations.def(
+        "ApplyPOTTransformations",
+        [](std::shared_ptr<ngraph::Function> function, std::string device) {
+            ov::pass::Manager manager;
+            manager.register_pass<ngraph::pass::POTTransformations>(std::move(device));
+            manager.run_passes(function);
+        },
+        py::arg("function"),
+        py::arg("device"));
 
     // m_offline_transformations.def("ApplyLowLatencyTransformation",
     //                               [](InferenceEnginePython::IENetwork network, bool use_const_initializer) {
