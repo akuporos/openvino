@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import argparse
-from ngraph import function_from_cnn
 
 from mo.utils.error import Error
 from mo.utils.cli_parser import parse_transform
@@ -38,6 +37,7 @@ def apply_offline_transformations(input_model: str, framework: str, transforms: 
 
     from openvino.inference_engine import read_network  # pylint: disable=import-error,no-name-in-module
     from openvino.offline_transformations import GenerateMappingFile  # pylint: disable=import-error,no-name-in-module
+    from ngraph import function_from_cnn # pylint: disable=import-error,no-name-in-module
 
     net = read_network(input_model + "_tmp.xml", input_model + "_tmp.bin")
     function = function_from_cnn(net)
