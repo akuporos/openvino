@@ -17,8 +17,8 @@ def get_available_transformations():
         return {}
 
 
-def apply_moc_transformations(function: object, transforms: list):
-    from openvino.offline_transformations import ApplyMOCTransformations  # pylint: disable=import-error,no-name-in-module
+# net should be openvino.inference_engine.IENetwork type, but IE Engine is still optional dependency
+def apply_user_transformations(function: object, transforms: list):
     available_transformations = get_available_transformations()
 
     for name, args in transforms:
@@ -27,6 +27,9 @@ def apply_moc_transformations(function: object, transforms: list):
 
         available_transformations[name](function, **args)
 
+
+def apply_moc_transformations(function: object):
+    from openvino.offline_transformations import ApplyMOCTransformations  # pylint: disable=import-error,no-name-in-module
     ApplyMOCTransformations(function, False)
 
 
@@ -41,7 +44,8 @@ def apply_offline_transformations(input_model: str, framework: str, transforms: 
 
     net = read_network(input_model + "_tmp.xml", input_model + "_tmp.bin")
     function = function_from_cnn(net)
-    apply_moc_transformations(function, transforms)
+    apply_user_transformations(function, transforms)
+    apply_moc_transformations(function)
     net.serialize(input_model + ".xml", input_model + ".bin")
     path_to_mapping = input_model + ".mapping"
     GenerateMappingFile(function, path_to_mapping.encode('utf-8'), extract_names)
