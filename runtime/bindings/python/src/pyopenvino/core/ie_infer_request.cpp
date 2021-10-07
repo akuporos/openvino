@@ -17,41 +17,6 @@ namespace py = pybind11;
 
 void regclass_InferRequest(py::module m) {
     py::class_<InferRequestWrapper, std::shared_ptr<InferRequestWrapper>> cls(m, "InferRequest");
-
-    cls.def(
-        "set_batch",
-        [](InferRequestWrapper& self, const int size) {
-            self._request.SetBatch(size);
-        },
-        py::arg("size"));
-
-    cls.def(
-        "get_blob",
-        [](InferRequestWrapper& self, const std::string& name) {
-            return self._request.GetBlob(name);
-        },
-        py::arg("name"));
-
-    cls.def(
-        "set_blob",
-        [](InferRequestWrapper& self, const std::string& name, py::handle& blob) {
-            self._request.SetBlob(name, Common::cast_to_blob(blob));
-        },
-        py::arg("name"),
-        py::arg("blob"));
-
-    cls.def(
-        "set_blob",
-        [](InferRequestWrapper& self,
-           const std::string& name,
-           py::handle& blob,
-           const InferenceEngine::PreProcessInfo& info) {
-            self._request.SetBlob(name, Common::cast_to_blob(blob));
-        },
-        py::arg("name"),
-        py::arg("blob"),
-        py::arg("info"));
-
     cls.def(
         "set_input",
         [](InferRequestWrapper& self, const py::dict& inputs) {
@@ -147,10 +112,11 @@ void regclass_InferRequest(py::module m) {
         py::arg("f_callback"),
         py::arg("userdata"));
 
-    cls.def("get_perf_counts", [](InferRequestWrapper& self) {
+    cls.def("get_profiling_info", [](InferRequestWrapper& self) {
         std::map<std::string, InferenceEngine::InferenceEngineProfileInfo> perfMap;
         perfMap = self._request.GetPerformanceCounts();
         py::dict perf_map;
+        py::list prof_info;
 
         for (auto it : perfMap) {
             py::dict profile_info;
@@ -173,6 +139,8 @@ void regclass_InferRequest(py::module m) {
             profile_info["real_time"] = it.second.realTime_uSec;
             profile_info["execution_index"] = it.second.execution_index;
             perf_map[it.first.c_str()] = profile_info;
+
+            prof_info.append(it.second);
         }
         return perf_map;
     });
