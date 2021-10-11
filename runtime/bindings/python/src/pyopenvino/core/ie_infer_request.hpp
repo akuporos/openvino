@@ -9,7 +9,8 @@
 #include <pybind11/pybind11.h>
 
 #include <cpp/ie_executable_network.hpp>
-#include <cpp/ie_infer_request.hpp>
+// #include <cpp/ie_infer_request.hpp>
+#include <openvino/runtime/infer_request.hpp>
 #include <ie_input_info.hpp>
 
 namespace py = pybind11;
@@ -19,7 +20,7 @@ typedef std::chrono::nanoseconds ns;
 
 class InferRequestWrapper {
 public:
-    InferRequestWrapper(InferenceEngine::InferRequest request)
+    InferRequestWrapper(ov::runtime::InferRequest request)
         : _request(request)
     {
     }
@@ -33,7 +34,7 @@ public:
         return static_cast<double>(execTime.count()) * 0.000001;
     }
 
-    InferenceEngine::InferRequest _request;
+    ov::runtime::InferRequest _request;
     InferenceEngine::ConstInputsDataMap _inputsInfo;
     InferenceEngine::ConstOutputsDataMap _outputsInfo;
     Time::time_point _startTime;
