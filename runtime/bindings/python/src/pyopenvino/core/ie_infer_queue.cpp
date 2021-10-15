@@ -59,16 +59,16 @@ public:
 
         size_t request_id = _idle_handles.front();
 
-        InferenceEngine::StatusCode status =
-            _requests[request_id]._request.Wait(InferenceEngine::IInferRequest::WaitMode::STATUS_ONLY);
+        // InferenceEngine::StatusCode status =
+        //     _requests[request_id]._request.Wait(InferenceEngine::IInferRequest::WaitMode::STATUS_ONLY);
 
-        if (status == InferenceEngine::StatusCode::RESULT_NOT_READY) {
-            status = _requests[request_id]._request.Wait(InferenceEngine::IInferRequest::WaitMode::RESULT_READY);
-        }
+        // if (status == InferenceEngine::StatusCode::RESULT_NOT_READY) {
+        //     status = _requests[request_id]._request.Wait(InferenceEngine::IInferRequest::WaitMode::RESULT_READY);
+        // }
 
         py::dict request_info = py::dict();
         request_info["id"] = request_id;
-        request_info["status"] = status;
+        // request_info["status"] = true; // TODO
 
         return request_info;
     }
@@ -87,7 +87,7 @@ public:
         return idle_request_id;
     }
 
-    std::vector<InferenceEngine::StatusCode> waitAll() {
+    std::vector<bool> waitAll() {
         // Wait for all requests to return with callback thus updating
         // _idle_handles so it matches the size of requests
         py::gil_scoped_release release;
@@ -96,10 +96,10 @@ public:
             return _idle_handles.size() == _requests.size();
         });
 
-        std::vector<InferenceEngine::StatusCode> statuses;
+        std::vector<bool> statuses;
 
         for (size_t handle = 0; handle < _requests.size(); handle++) {
-            statuses.push_back(_requests[handle]._request.Wait(InferenceEngine::IInferRequest::WaitMode::RESULT_READY));
+            statuses.push_back(_requests[handle]._request.wait_for(std::chrono::milliseconds(0)));
         }
 
         return statuses;
@@ -107,7 +107,7 @@ public:
 
     void setDefaultCallbacks() {
         for (size_t handle = 0; handle < _requests.size(); handle++) {
-            _requests[handle]._request.SetCompletionCallback([this, handle /* ... */]() {
+            _requests[handle]._request.set_callback([this, handle /* ... */](std::exception_ptr exceptionPtr) {
                 _requests[handle]._endTime = Time::now();
                 // Add idle handle to queue
                 _idle_handles.push(handle);
@@ -119,16 +119,18 @@ public:
 
     void setCustomCallbacks(py::function f_callback) {
         for (size_t handle = 0; handle < _requests.size(); handle++) {
-            _requests[handle]._request.SetCompletionCallback([this, f_callback, handle /* ... */]() {
+            _requests[handle]._request.set_callback([this, f_callback, handle /* ... */](std::exception_ptr exceptionPtr) {
                 _requests[handle]._endTime = Time::now();
-                InferenceEngine::StatusCode statusCode =
-                    _requests[handle]._request.Wait(InferenceEngine::IInferRequest::WaitMode::STATUS_ONLY);
-                if (statusCode == InferenceEngine::StatusCode::RESULT_NOT_READY) {
-                    statusCode = InferenceEngine::StatusCode::OK;
+                try {
+                    if (exceptionPtr) {
+                        std::rethrow_exception(exceptionPtr);
+                    }
+                } catch(const std::exception& e) {
+                    IE_THROW() << "Caught exception: " << e.what();;
                 }
                 // Acquire GIL, execute Python function
                 py::gil_scoped_acquire acquire;
-                f_callback(_requests[handle], statusCode, _user_ids[handle]);
+                f_callback(_requests[handle], _user_ids[handle]);
                 // Add idle handle to queue
                 _idle_handles.push(handle);
                 // Notify locks in getIdleRequestId() or waitAll() functions
@@ -190,7 +192,7 @@ void regclass_InferQueue(py::module m) {
                 py::gil_scoped_release release;
                 self._requests[handle]._startTime = Time::now();
                 // Start InferRequest in asynchronus mode
-                self._requests[handle]._request.StartAsync();
+                self._requests[handle]._request.start_async();
             }
         },
         py::arg("inputs"),
