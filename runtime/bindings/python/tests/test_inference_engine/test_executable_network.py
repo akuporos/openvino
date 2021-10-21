@@ -226,3 +226,4 @@ def test_inputs_docs(device):
     input_0 = inputs[0]
     exptected_string = "openvino.impl.ConstOutput wraps ov::Output<Const ov::Node >"
     assert input_0.__doc__ == exptected_string
+
