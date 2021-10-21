@@ -59,13 +59,6 @@ public:
 
         size_t request_id = _idle_handles.front();
 
-        // InferenceEngine::StatusCode status =
-        //     _requests[request_id]._request.Wait(InferenceEngine::IInferRequest::WaitMode::STATUS_ONLY);
-
-        // if (status == InferenceEngine::StatusCode::RESULT_NOT_READY) {
-        //     status = _requests[request_id]._request.Wait(InferenceEngine::IInferRequest::WaitMode::RESULT_READY);
-        // }
-
         py::dict request_info = py::dict();
         request_info["id"] = request_id;
         // request_info["status"] = true; // TODO
