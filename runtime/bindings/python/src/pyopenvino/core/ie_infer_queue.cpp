@@ -119,23 +119,25 @@ public:
 
     void setCustomCallbacks(py::function f_callback) {
         for (size_t handle = 0; handle < _requests.size(); handle++) {
-            _requests[handle]._request.set_callback([this, f_callback, handle /* ... */](std::exception_ptr exceptionPtr) {
-                _requests[handle]._endTime = Time::now();
-                try {
-                    if (exceptionPtr) {
-                        std::rethrow_exception(exceptionPtr);
+            _requests[handle]._request.set_callback(
+                [this, f_callback, handle /* ... */](std::exception_ptr exceptionPtr) {
+                    _requests[handle]._endTime = Time::now();
+                    try {
+                        if (exceptionPtr) {
+                            std::rethrow_exception(exceptionPtr);
+                        }
+                    } catch (const std::exception& e) {
+                        IE_THROW() << "Caught exception: " << e.what();
+                        ;
                     }
-                } catch(const std::exception& e) {
-                    IE_THROW() << "Caught exception: " << e.what();;
-                }
-                // Acquire GIL, execute Python function
-                py::gil_scoped_acquire acquire;
-                f_callback(_requests[handle], _user_ids[handle]);
-                // Add idle handle to queue
-                _idle_handles.push(handle);
-                // Notify locks in getIdleRequestId() or waitAll() functions
-                _cv.notify_one();
-            });
+                    // Acquire GIL, execute Python function
+                    py::gil_scoped_acquire acquire;
+                    f_callback(_requests[handle], _user_ids[handle]);
+                    // Add idle handle to queue
+                    _idle_handles.push(handle);
+                    // Notify locks in getIdleRequestId() or waitAll() functions
+                    _cv.notify_one();
+                });
         }
     }
 

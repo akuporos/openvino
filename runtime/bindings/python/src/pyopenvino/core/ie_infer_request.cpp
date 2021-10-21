@@ -24,14 +24,14 @@ void regclass_InferRequest(py::module m) {
     cls.def(
         "set_input",
         [](InferRequestWrapper& self, const py::dict& inputs) {
-            Common::set_request_blobs(self._request, inputs); // TODO: Change for Tensor
+            Common::set_request_blobs(self._request, inputs);  // TODO: Change for Tensor
         },
         py::arg("inputs"));
 
     cls.def(
         "set_output",
         [](InferRequestWrapper& self, const py::dict& results) {
-            Common::set_request_blobs(self._request, results); // TODO: Change for Tensor
+            Common::set_request_blobs(self._request, results);  // TODO: Change for Tensor
         },
         py::arg("results"));
 
@@ -40,14 +40,14 @@ void regclass_InferRequest(py::module m) {
         [](InferRequestWrapper& self, const py::dict& inputs) {
             // Update inputs if there are any
             if (!inputs.empty()) {
-                Common::set_request_blobs(self._request, inputs); // TODO: Change for Tensor
+                Common::set_request_blobs(self._request, inputs);  // TODO: Change for Tensor
             }
             // Call Infer function
             self._startTime = Time::now();
             self._request.infer();
             self._endTime = Time::now();
             // Get output Blobs and return
-            Containers::PyResults results; // TODO: Change for Tensor
+            Containers::PyResults results;  // TODO: Change for Tensor
             for (auto& out : self._outputsInfo) {
                 results[out.first] = self._request.get_tensor(out.first);
             }
@@ -60,7 +60,7 @@ void regclass_InferRequest(py::module m) {
         [](InferRequestWrapper& self, const py::dict inputs, py::object userdata) {
             py::gil_scoped_release release;
             if (!inputs.empty()) {
-                Common::set_request_blobs(self._request, inputs); // TODO: Change for Tensor
+                Common::set_request_blobs(self._request, inputs);  // TODO: Change for Tensor
             }
             // TODO: check for None so next async infer userdata can be updated
             // if (!userdata.empty())
@@ -90,12 +90,10 @@ void regclass_InferRequest(py::module m) {
         self._request.cancel();
     });
 
-    cls.def(
-        "wait",
-        [](InferRequestWrapper& self) {
-            py::gil_scoped_release release;
-            self._request.wait();
-        });
+    cls.def("wait", [](InferRequestWrapper& self) {
+        py::gil_scoped_release release;
+        self._request.wait();
+    });
 
     cls.def(
         "wait_for",
@@ -114,8 +112,9 @@ void regclass_InferRequest(py::module m) {
                     if (exceptionPtr) {
                         std::rethrow_exception(exceptionPtr);
                     }
-                } catch(const std::exception& e) {
-                    IE_THROW() << "Caught exception: " << e.what();;
+                } catch (const std::exception& e) {
+                    IE_THROW() << "Caught exception: " << e.what();
+                    ;
                 }
                 // Acquire GIL, execute Python function
                 py::gil_scoped_acquire acquire;
@@ -129,59 +128,79 @@ void regclass_InferRequest(py::module m) {
         return prof_vec;
     });
 
-    cls.def("get_tensor", [](InferRequestWrapper& self, const std::string& name) {
-        self._request.get_tensor(name);
+    cls.def(
+        "get_tensor",
+        [](InferRequestWrapper& self, const std::string& name) {
+            self._request.get_tensor(name);
         },
         py::arg("name"));
 
-    cls.def("get_tensor", [](InferRequestWrapper& self, const ov::Output<const ov::Node>& port) {
-        self._request.get_tensor(port);
+    cls.def(
+        "get_tensor",
+        [](InferRequestWrapper& self, const ov::Output<const ov::Node>& port) {
+            self._request.get_tensor(port);
         },
         py::arg("port"));
 
-    cls.def("get_tensor", [](InferRequestWrapper& self, const ov::Output<ov::Node>& port) {
-        self._request.get_tensor(port);
+    cls.def(
+        "get_tensor",
+        [](InferRequestWrapper& self, const ov::Output<ov::Node>& port) {
+            self._request.get_tensor(port);
         },
         py::arg("port"));
 
-    cls.def("set_tensor", [](InferRequestWrapper& self, const std::string& name, const ov::runtime::Tensor& tensor) {
-        self._request.set_tensor(name, tensor);
-    },
+    cls.def(
+        "set_tensor",
+        [](InferRequestWrapper& self, const std::string& name, const ov::runtime::Tensor& tensor) {
+            self._request.set_tensor(name, tensor);
+        },
         py::arg("name"),
         py::arg("tensor"));
 
-    cls.def("set_tensor", [](InferRequestWrapper& self, const ov::Output<const ov::Node>& port, const ov::runtime::Tensor& tensor) {
-        self._request.set_tensor(port, tensor);
-    },
+    cls.def(
+        "set_tensor",
+        [](InferRequestWrapper& self, const ov::Output<const ov::Node>& port, const ov::runtime::Tensor& tensor) {
+            self._request.set_tensor(port, tensor);
+        },
         py::arg("port"),
         py::arg("tensor"));
 
-    cls.def("set_tensor", [](InferRequestWrapper& self, const ov::Output<ov::Node>& port, const ov::runtime::Tensor& tensor) {
-        self._request.set_tensor(port, tensor);
-    },
+    cls.def(
+        "set_tensor",
+        [](InferRequestWrapper& self, const ov::Output<ov::Node>& port, const ov::runtime::Tensor& tensor) {
+            self._request.set_tensor(port, tensor);
+        },
         py::arg("port"),
         py::arg("tensor"));
 
-    cls.def("set_input_tensor", [](InferRequestWrapper& self, size_t idx, const ov::runtime::Tensor& tensor) {
-        self._request.set_input_tensor(idx, tensor);
-    },
+    cls.def(
+        "set_input_tensor",
+        [](InferRequestWrapper& self, size_t idx, const ov::runtime::Tensor& tensor) {
+            self._request.set_input_tensor(idx, tensor);
+        },
         py::arg("idx"),
         py::arg("tensor"));
 
-    cls.def("set_input_tensor", [](InferRequestWrapper& self, const ov::runtime::Tensor& tensor) {
-        self._request.set_input_tensor(tensor);
-    },
+    cls.def(
+        "set_input_tensor",
+        [](InferRequestWrapper& self, const ov::runtime::Tensor& tensor) {
+            self._request.set_input_tensor(tensor);
+        },
         py::arg("tensor"));
 
-    cls.def("set_output_tensor", [](InferRequestWrapper& self, size_t idx, const ov::runtime::Tensor& tensor) {
-        self._request.set_input_tensor(idx, tensor);
-    },
+    cls.def(
+        "set_output_tensor",
+        [](InferRequestWrapper& self, size_t idx, const ov::runtime::Tensor& tensor) {
+            self._request.set_input_tensor(idx, tensor);
+        },
         py::arg("idx"),
         py::arg("tensor"));
 
-    cls.def("set_output_tensor", [](InferRequestWrapper& self, const ov::runtime::Tensor& tensor) {
-        self._request.set_input_tensor(tensor);
-    },
+    cls.def(
+        "set_output_tensor",
+        [](InferRequestWrapper& self, const ov::runtime::Tensor& tensor) {
+            self._request.set_input_tensor(tensor);
+        },
         py::arg("tensor"));
 
     cls.def("query_state", [](InferRequestWrapper& self) {
@@ -189,9 +208,8 @@ void regclass_InferRequest(py::module m) {
         return states;
     });
 
-
     cls.def_property_readonly("input_blobs", [](InferRequestWrapper& self) {
-        Containers::PyResults input_blobs; // TODO: Change for Tensor
+        Containers::PyResults input_blobs;  // TODO: Change for Tensor
         for (auto& in : self._inputsInfo) {
             input_blobs[in.first] = self._request.get_tensor(in.first);
         }
@@ -199,7 +217,7 @@ void regclass_InferRequest(py::module m) {
     });
 
     cls.def_property_readonly("output_blobs", [](InferRequestWrapper& self) {
-        Containers::PyResults output_blobs; // TODO: Change for Tensor
+        Containers::PyResults output_blobs;  // TODO: Change for Tensor
         for (auto& out : self._outputsInfo) {
             output_blobs[out.first] = self._request.get_tensor(out.first);
         }
