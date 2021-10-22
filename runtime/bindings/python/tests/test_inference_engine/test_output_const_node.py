@@ -81,3 +81,4 @@ def test_const_output_get_target_inputs(device):
     outputs = exec_net.outputs
     for node in outputs:
         assert isinstance(node.get_target_inputs(), set)
+
