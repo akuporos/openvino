@@ -8,8 +8,6 @@
 
 #include <pybind11/pybind11.h>
 
-#include <cpp/ie_executable_network.hpp>
-// #include <cpp/ie_infer_request.hpp>
 #include <openvino/runtime/infer_request.hpp>
 #include <ie_input_info.hpp>
 

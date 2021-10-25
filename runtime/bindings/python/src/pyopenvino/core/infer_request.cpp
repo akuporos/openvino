@@ -1,7 +1,7 @@
 // Copyright (C) 2021 Intel Corporation
 // SPDX-License-Identifier: Apache-2.0
 
-#include "pyopenvino/core/ie_infer_request.hpp"
+#include "pyopenvino/core/infer_request.hpp"
 
 #include <ie_common.h>
 #include <pybind11/functional.h>

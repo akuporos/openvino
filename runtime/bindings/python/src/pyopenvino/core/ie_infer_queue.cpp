@@ -18,7 +18,7 @@
 #include <vector>
 
 #include "pyopenvino/core/common.hpp"
-#include "pyopenvino/core/ie_infer_request.hpp"
+#include "pyopenvino/core/infer_request.hpp"
 
 #define INVALID_ID -1
 

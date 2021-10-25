@@ -26,7 +26,7 @@
 #include "pyopenvino/core/ie_blob.hpp"
 #include "pyopenvino/core/ie_data.hpp"
 #include "pyopenvino/core/ie_infer_queue.hpp"
-#include "pyopenvino/core/ie_infer_request.hpp"
+#include "pyopenvino/core/infer_request.hpp"
 #include "pyopenvino/core/ie_input_info.hpp"
 #include "pyopenvino/core/ie_network.hpp"
 #include "pyopenvino/core/ie_parameter.hpp"
