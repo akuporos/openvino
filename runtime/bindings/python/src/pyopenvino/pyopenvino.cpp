@@ -34,6 +34,10 @@
 #include "pyopenvino/core/ie_version.hpp"
 #include "pyopenvino/core/tensor.hpp"
 #include "pyopenvino/core/tensor_description.hpp"
+#include "pyopenvino/frontend/frontend.hpp"
+#include "pyopenvino/frontend/frontend_manager.hpp"
+#include "pyopenvino/frontend/inputmodel.hpp"
+#include "pyopenvino/frontend/place.hpp"
 #include "pyopenvino/graph/dimension.hpp"
 #include "pyopenvino/graph/ops/constant.hpp"
 #include "pyopenvino/graph/ops/parameter.hpp"
@@ -148,4 +152,14 @@ PYBIND11_MODULE(pyopenvino, m) {
     regclass_InputInfo(m);
     regclass_InferQueue(m);
     regclass_PreProcessInfo(m);
+
+    regclass_frontend_Place(m);
+    regclass_frontend_InitializationFailureFrontEnd(m);
+    regclass_frontend_GeneralFailureFrontEnd(m);
+    regclass_frontend_OpConversionFailureFrontEnd(m);
+    regclass_frontend_OpValidationFailureFrontEnd(m);
+    regclass_frontend_NotImplementedFailureFrontEnd(m);
+    regclass_frontend_FrontEndManager(m);
+    regclass_frontend_FrontEnd(m);
+    regclass_frontend_InputModel(m);
 }
