@@ -22,6 +22,11 @@ public:
         : _request(request)
     {
     }
+
+    InferRequestWrapper(ov::runtime::InferRequest request, const std::vector<ov::Output<const ov::Node>>& inputs, const std::vector<ov::Output<const ov::Node>>& outputs)
+        : _request(request), _inputs(inputs), _outputs(outputs)
+    {
+    }
     // ~InferRequestWrapper() = default;
 
     // bool user_callback_defined;
@@ -33,8 +38,9 @@ public:
     }
 
     ov::runtime::InferRequest _request;
-    InferenceEngine::ConstInputsDataMap _inputsInfo;
-    InferenceEngine::ConstOutputsDataMap _outputsInfo;
+    std::vector<ov::Output<const ov::Node>> _inputs;
+    std::vector<ov::Output<const ov::Node>> _outputs;
+
     Time::time_point _startTime;
     Time::time_point _endTime;
 };

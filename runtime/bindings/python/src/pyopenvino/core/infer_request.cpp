@@ -6,6 +6,7 @@
 #include <ie_common.h>
 #include <pybind11/functional.h>
 #include <pybind11/stl_bind.h>
+#include <pybind11/stl.h>
 
 #include <string>
 
@@ -22,45 +23,82 @@ PYBIND11_MAKE_OPAQUE(std::vector<InferenceEngine::VariableState>);
 void regclass_InferRequest(py::module m) {
     py::class_<InferRequestWrapper, std::shared_ptr<InferRequestWrapper>> cls(m, "InferRequest");
     cls.def(
-        "set_input",
-        [](InferRequestWrapper& self, const py::dict& inputs) {
-            Common::set_request_blobs(self._request, inputs);  // TODO: Change for Tensor
+        "set_tensors",
+        [](InferRequestWrapper& self, const Containers::TensorNameMap& inputs) {
+            for (auto&& pair : inputs) {
+                self._request.set_tensor(pair.first, pair.second);
+            }
         },
         py::arg("inputs"));
 
     cls.def(
-        "set_output",
-        [](InferRequestWrapper& self, const py::dict& results) {
-            Common::set_request_blobs(self._request, results);  // TODO: Change for Tensor
+        "set_output_tensors",
+        [](InferRequestWrapper& self, const Containers::TensorIndexMap& outputs) {
+            for (auto&& pair : outputs) {
+                self._request.set_output_tensor(pair.first, pair.second);
+            }
         },
-        py::arg("results"));
+        py::arg("outputs"));
+
+    cls.def(
+        "set_input_tensors",
+        [](InferRequestWrapper& self, const Containers::TensorIndexMap& inputs) {
+            for (auto&& pair : inputs) {
+                self._request.set_input_tensor(pair.first, pair.second);
+            }
+        },
+        py::arg("inputs"));
 
     cls.def(
         "_infer",
-        [](InferRequestWrapper& self, const py::dict& inputs) {
+        [](InferRequestWrapper& self, const Containers::TensorIndexMap& inputs) {
             // Update inputs if there are any
             if (!inputs.empty()) {
-                Common::set_request_blobs(self._request, inputs);  // TODO: Change for Tensor
+                for (auto&& pair : inputs) {
+                    self._request.set_input_tensor(pair.first, pair.second);
+                }
             }
             // Call Infer function
             self._startTime = Time::now();
             self._request.infer();
             self._endTime = Time::now();
-            // Get output Blobs and return
-            Containers::PyResults results;  // TODO: Change for Tensor
-            for (auto& out : self._outputsInfo) {
-                results[out.first] = self._request.get_tensor(out.first);
+            Containers::InferResults results;
+            for (auto& out : self._outputs) {
+                results.push_back(self._request.get_tensor(out));
             }
             return results;
         },
         py::arg("inputs"));
 
     cls.def(
-        "start_async",
-        [](InferRequestWrapper& self, const py::dict inputs, py::object userdata) {
+        "_infer",
+        [](InferRequestWrapper& self, const Containers::TensorNameMap& inputs) {
+            // Update inputs if there are any
+            if (!inputs.empty()) {
+                for (auto&& pair : inputs) {
+                    self._request.set_tensor(pair.first, pair.second);
+                }
+            }
+            // Call Infer function
+            self._startTime = Time::now();
+            self._request.infer();
+            self._endTime = Time::now();
+            Containers::TensorNameMap results;
+            for (auto& out : self._outputs) {
+                results[out.get_any_name()] = self._request.get_tensor(out);
+            }
+            return results;
+        },
+        py::arg("inputs"));
+
+    cls.def(
+        "_start_async",
+        [](InferRequestWrapper& self, const Containers::TensorIndexMap& inputs) {
             py::gil_scoped_release release;
             if (!inputs.empty()) {
-                Common::set_request_blobs(self._request, inputs);  // TODO: Change for Tensor
+               for (auto&& pair : inputs) {
+                    self._request.set_input_tensor(pair.first, pair.second);
+                }
             }
             // TODO: check for None so next async infer userdata can be updated
             // if (!userdata.empty())
@@ -83,8 +121,39 @@ void regclass_InferRequest(py::module m) {
             self._startTime = Time::now();
             self._request.start_async();
         },
-        py::arg("inputs"),
-        py::arg("userdata"));
+        py::arg("inputs"));
+
+    cls.def(
+        "_start_async",
+        [](InferRequestWrapper& self, const Containers::TensorNameMap& inputs) {
+            py::gil_scoped_release release;
+            if (!inputs.empty()) {
+               for (auto&& pair : inputs) {
+                    self._request.set_tensor(pair.first, pair.second);
+                }
+            }
+            // TODO: check for None so next async infer userdata can be updated
+            // if (!userdata.empty())
+            // {
+            //     if (user_callback_defined)
+            //     {
+            //         self._request.SetCompletionCallback([self, userdata]() {
+            //             // py::gil_scoped_acquire acquire;
+            //             auto statusCode = const_cast<InferRequestWrapper&>(self).Wait(
+            //                 InferenceEngine::IInferRequest::WaitMode::STATUS_ONLY);
+            //             self._request.user_callback(self, statusCode, userdata);
+            //             // py::gil_scoped_release release;
+            //         });
+            //     }
+            //     else
+            //     {
+            //         py::print("There is no callback function!");
+            //     }
+            // }
+            self._startTime = Time::now();
+            self._request.start_async();
+        },
+        py::arg("inputs"));
 
     cls.def("cancel", [](InferRequestWrapper& self) {
         self._request.cancel();
@@ -114,7 +183,6 @@ void regclass_InferRequest(py::module m) {
                     }
                 } catch (const std::exception& e) {
                     IE_THROW() << "Caught exception: " << e.what();
-                    ;
                 }
                 // Acquire GIL, execute Python function
                 py::gil_scoped_acquire acquire;
@@ -131,21 +199,21 @@ void regclass_InferRequest(py::module m) {
     cls.def(
         "get_tensor",
         [](InferRequestWrapper& self, const std::string& name) {
-            self._request.get_tensor(name);
+            return self._request.get_tensor(name);
         },
         py::arg("name"));
 
     cls.def(
         "get_tensor",
         [](InferRequestWrapper& self, const ov::Output<const ov::Node>& port) {
-            self._request.get_tensor(port);
+            return self._request.get_tensor(port);
         },
         py::arg("port"));
 
     cls.def(
         "get_tensor",
         [](InferRequestWrapper& self, const ov::Output<ov::Node>& port) {
-            self._request.get_tensor(port);
+            return self._request.get_tensor(port);
         },
         py::arg("port"));
 
@@ -208,34 +276,15 @@ void regclass_InferRequest(py::module m) {
         return states;
     });
 
-    cls.def_property_readonly("input_blobs", [](InferRequestWrapper& self) {
-        Containers::PyResults input_blobs;  // TODO: Change for Tensor
-        for (auto& in : self._inputsInfo) {
-            input_blobs[in.first] = self._request.get_tensor(in.first);
-        }
-        return input_blobs;
+    cls.def_property_readonly("input_tensors", [](InferRequestWrapper& self) {
+        return self._inputs;
     });
 
-    cls.def_property_readonly("output_blobs", [](InferRequestWrapper& self) {
-        Containers::PyResults output_blobs;  // TODO: Change for Tensor
-        for (auto& out : self._outputsInfo) {
-            output_blobs[out.first] = self._request.get_tensor(out.first);
-        }
-        return output_blobs;
+    cls.def_property_readonly("output_tensors", [](InferRequestWrapper& self) {
+        return self._outputs;
     });
 
     cls.def_property_readonly("latency", [](InferRequestWrapper& self) {
         return self.getLatency();
     });
-
-    // cls.def(
-    //     "preprocess_info",
-    //     [](InferRequestWrapper& self, const std::string& name) {
-    //         return self._request.GetPreProcess(name);
-    //     },
-    //     py::arg("name"));
-
-    //    cls.def_property_readonly("preprocess_info", [](InferRequestWrapper& self) {
-    //
-    //    });
 }
