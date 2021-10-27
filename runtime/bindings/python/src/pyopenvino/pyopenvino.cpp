@@ -4,6 +4,7 @@
 #include <ie_common.h>
 #include <pybind11/pybind11.h>
 
+#include <openvino/core/node.hpp>
 #include <ie_iinfer_request.hpp>
 #include <ie_version.hpp>
 #include <string>
@@ -140,17 +141,16 @@ PYBIND11_MODULE(pyopenvino, m) {
     regclass_Tensor(m);
 
     // Registering specific types of containers
-    Containers::regclass_PyInputsDataMap(m);
-    Containers::regclass_PyConstInputsDataMap(m);
-    Containers::regclass_PyOutputsDataMap(m);
-    Containers::regclass_PyResults(m);
+    Containers::regclass_TensorIndexMap(m);
+    Containers::regclass_TensorNameMap(m);
+    Containers::regclass_InferResults(m);
 
     regclass_ExecutableNetwork(m);
     regclass_InferRequest(m);
     regclass_Version(m);
     regclass_Parameter(m);
     regclass_InputInfo(m);
-    regclass_InferQueue(m);
+    //regclass_InferQueue(m);
     regclass_PreProcessInfo(m);
 
     regclass_frontend_Place(m);
