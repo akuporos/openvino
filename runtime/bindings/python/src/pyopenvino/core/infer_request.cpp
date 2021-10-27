@@ -5,8 +5,8 @@
 
 #include <ie_common.h>
 #include <pybind11/functional.h>
-#include <pybind11/stl_bind.h>
 #include <pybind11/stl.h>
+#include <pybind11/stl_bind.h>
 
 #include <string>
 
@@ -96,7 +96,7 @@ void regclass_InferRequest(py::module m) {
         [](InferRequestWrapper& self, const Containers::TensorIndexMap& inputs) {
             py::gil_scoped_release release;
             if (!inputs.empty()) {
-               for (auto&& pair : inputs) {
+                for (auto&& pair : inputs) {
                     self._request.set_input_tensor(pair.first, pair.second);
                 }
             }
@@ -128,7 +128,7 @@ void regclass_InferRequest(py::module m) {
         [](InferRequestWrapper& self, const Containers::TensorNameMap& inputs) {
             py::gil_scoped_release release;
             if (!inputs.empty()) {
-               for (auto&& pair : inputs) {
+                for (auto&& pair : inputs) {
                     self._request.set_tensor(pair.first, pair.second);
                 }
             }

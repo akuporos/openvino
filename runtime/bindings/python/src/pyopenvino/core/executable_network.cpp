@@ -7,8 +7,8 @@
 
 #include "common.hpp"
 #include "pyopenvino/core/containers.hpp"
-#include "pyopenvino/core/infer_request.hpp"
 #include "pyopenvino/core/ie_input_info.hpp"
+#include "pyopenvino/core/infer_request.hpp"
 
 namespace py = pybind11;
 

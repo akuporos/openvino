@@ -4,9 +4,9 @@
 #include <ie_common.h>
 #include <pybind11/pybind11.h>
 
-#include <openvino/core/node.hpp>
 #include <ie_iinfer_request.hpp>
 #include <ie_version.hpp>
+#include <openvino/core/node.hpp>
 #include <string>
 
 #include "pyopenvino/graph/axis_set.hpp"
@@ -27,12 +27,12 @@
 #include "pyopenvino/core/ie_blob.hpp"
 #include "pyopenvino/core/ie_data.hpp"
 #include "pyopenvino/core/ie_infer_queue.hpp"
-#include "pyopenvino/core/infer_request.hpp"
 #include "pyopenvino/core/ie_input_info.hpp"
 #include "pyopenvino/core/ie_network.hpp"
 #include "pyopenvino/core/ie_parameter.hpp"
 #include "pyopenvino/core/ie_preprocess_info.hpp"
 #include "pyopenvino/core/ie_version.hpp"
+#include "pyopenvino/core/infer_request.hpp"
 #include "pyopenvino/core/tensor.hpp"
 #include "pyopenvino/core/tensor_description.hpp"
 #include "pyopenvino/frontend/frontend.hpp"
@@ -150,7 +150,7 @@ PYBIND11_MODULE(pyopenvino, m) {
     regclass_Version(m);
     regclass_Parameter(m);
     regclass_InputInfo(m);
-    //regclass_InferQueue(m);
+    // regclass_InferQueue(m);
     regclass_PreProcessInfo(m);
 
     regclass_frontend_Place(m);
