@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "pyopenvino/core/infer_request.hpp"
+#include "pyopenvino/core/containers.hpp"
 
 #include <ie_common.h>
 #include <pybind11/functional.h>
@@ -10,15 +11,7 @@
 
 #include <string>
 
-#include "pyopenvino/core/common.hpp"
-#include "pyopenvino/core/containers.hpp"
-#include "pyopenvino/core/executable_network.hpp"
-#include "pyopenvino/core/ie_preprocess_info.hpp"
-
 namespace py = pybind11;
-
-PYBIND11_MAKE_OPAQUE(std::vector<ov::runtime::ProfilingInfo>);
-PYBIND11_MAKE_OPAQUE(std::vector<InferenceEngine::VariableState>);
 
 void regclass_InferRequest(py::module m) {
     py::class_<InferRequestWrapper, std::shared_ptr<InferRequestWrapper>> cls(m, "InferRequest");
@@ -166,9 +159,9 @@ void regclass_InferRequest(py::module m) {
 
     cls.def(
         "wait_for",
-        [](InferRequestWrapper& self, const std::chrono::milliseconds timeout) {
+        [](InferRequestWrapper& self, const int timeout) {
             py::gil_scoped_release release;
-            return self._request.wait_for(timeout);
+            return self._request.wait_for(std::chrono::milliseconds(timeout));
         },
         py::arg("timeout"));
 
@@ -190,11 +183,6 @@ void regclass_InferRequest(py::module m) {
             });
         },
         py::arg("f_callback"));
-
-    cls.def("get_profiling_info", [](InferRequestWrapper& self) {
-        const std::vector<ov::runtime::ProfilingInfo> prof_vec = self._request.get_profiling_info();
-        return prof_vec;
-    });
 
     cls.def(
         "get_tensor",
@@ -259,7 +247,7 @@ void regclass_InferRequest(py::module m) {
     cls.def(
         "set_output_tensor",
         [](InferRequestWrapper& self, size_t idx, const ov::runtime::Tensor& tensor) {
-            self._request.set_input_tensor(idx, tensor);
+            self._request.set_output_tensor(idx, tensor);
         },
         py::arg("idx"),
         py::arg("tensor"));
@@ -267,14 +255,9 @@ void regclass_InferRequest(py::module m) {
     cls.def(
         "set_output_tensor",
         [](InferRequestWrapper& self, const ov::runtime::Tensor& tensor) {
-            self._request.set_input_tensor(tensor);
+            self._request.set_output_tensor(tensor);
         },
         py::arg("tensor"));
-
-    cls.def("query_state", [](InferRequestWrapper& self) {
-        const std::vector<ov::runtime::VariableState> states = self._request.query_state();
-        return states;
-    });
 
     cls.def_property_readonly("input_tensors", [](InferRequestWrapper& self) {
         return self._inputs;
