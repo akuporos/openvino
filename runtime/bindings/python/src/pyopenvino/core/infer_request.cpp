@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: Apache-2.0
 
 #include "pyopenvino/core/infer_request.hpp"
-#include "pyopenvino/core/containers.hpp"
 
 #include <ie_common.h>
 #include <pybind11/functional.h>
@@ -10,6 +9,8 @@
 #include <pybind11/stl_bind.h>
 
 #include <string>
+
+#include "pyopenvino/core/containers.hpp"
 
 namespace py = pybind11;
 

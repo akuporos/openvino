@@ -104,7 +104,6 @@ def test_set_tensors(device):
     t4 = request.get_tensor(output_node)
     assert np.allclose(tensor1.data, t4.data, atol=1e-2, rtol=1e-2)
 
-
     output_node = exec_net.inputs[0]
     request.set_tensor(output_node, tensor3)
     t5 = request.get_tensor(output_node)
@@ -125,7 +124,6 @@ def test_set_tensors(device):
     request.set_output_tensor(0, tensor4)
     t9 = request.get_tensor(request.output_tensors[0])
     assert np.allclose(tensor4.data, t9.data, atol=1e-2, rtol=1e-2)
-
 
 
 def test_cancel(device):
