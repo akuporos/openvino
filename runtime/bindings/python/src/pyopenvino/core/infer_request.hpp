@@ -9,7 +9,6 @@
 #include <pybind11/pybind11.h>
 
 #include <openvino/runtime/infer_request.hpp>
-#include <ie_input_info.hpp>
 
 namespace py = pybind11;
 

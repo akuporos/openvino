@@ -15,8 +15,6 @@
 #include "Python.h"
 #include "ie_common.h"
 
-#include "pyopenvino/core/containers.hpp"
-
 namespace py = pybind11;
 
 namespace Common
