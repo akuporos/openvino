@@ -19,8 +19,8 @@ void regclass_InferRequest(py::module m) {
     cls.def(
         "set_tensors",
         [](InferRequestWrapper& self, const Containers::TensorNameMap& inputs) {
-            for (auto&& pair : inputs) {
-                self._request.set_tensor(pair.first, pair.second);
+            for (auto&& input : inputs) {
+                self._request.set_tensor(input.first, input.second);
             }
         },
         py::arg("inputs"));
@@ -28,8 +28,8 @@ void regclass_InferRequest(py::module m) {
     cls.def(
         "set_output_tensors",
         [](InferRequestWrapper& self, const Containers::TensorIndexMap& outputs) {
-            for (auto&& pair : outputs) {
-                self._request.set_output_tensor(pair.first, pair.second);
+            for (auto&& output : outputs) {
+                self._request.set_output_tensor(output.first, output.second);
             }
         },
         py::arg("outputs"));
@@ -37,8 +37,8 @@ void regclass_InferRequest(py::module m) {
     cls.def(
         "set_input_tensors",
         [](InferRequestWrapper& self, const Containers::TensorIndexMap& inputs) {
-            for (auto&& pair : inputs) {
-                self._request.set_input_tensor(pair.first, pair.second);
+            for (auto&& input : inputs) {
+                self._request.set_input_tensor(input.first, input.second);
             }
         },
         py::arg("inputs"));
@@ -47,10 +47,8 @@ void regclass_InferRequest(py::module m) {
         "_infer",
         [](InferRequestWrapper& self, const Containers::TensorIndexMap& inputs) {
             // Update inputs if there are any
-            if (!inputs.empty()) {
-                for (auto&& pair : inputs) {
-                    self._request.set_input_tensor(pair.first, pair.second);
-                }
+            for (auto&& input : inputs) {
+                self._request.set_input_tensor(input.first, input.second);
             }
             // Call Infer function
             self._startTime = Time::now();
@@ -68,10 +66,8 @@ void regclass_InferRequest(py::module m) {
         "_infer",
         [](InferRequestWrapper& self, const Containers::TensorNameMap& inputs) {
             // Update inputs if there are any
-            if (!inputs.empty()) {
-                for (auto&& pair : inputs) {
-                    self._request.set_tensor(pair.first, pair.second);
-                }
+            for (auto&& input : inputs) {
+                self._request.set_tensor(input.first, input.second);
             }
             // Call Infer function
             self._startTime = Time::now();
@@ -89,10 +85,8 @@ void regclass_InferRequest(py::module m) {
         "_start_async",
         [](InferRequestWrapper& self, const Containers::TensorIndexMap& inputs) {
             py::gil_scoped_release release;
-            if (!inputs.empty()) {
-                for (auto&& pair : inputs) {
-                    self._request.set_input_tensor(pair.first, pair.second);
-                }
+            for (auto&& input : inputs) {
+                self._request.set_input_tensor(input.first, input.second);
             }
             // TODO: check for None so next async infer userdata can be updated
             // if (!userdata.empty())
@@ -121,10 +115,8 @@ void regclass_InferRequest(py::module m) {
         "_start_async",
         [](InferRequestWrapper& self, const Containers::TensorNameMap& inputs) {
             py::gil_scoped_release release;
-            if (!inputs.empty()) {
-                for (auto&& pair : inputs) {
-                    self._request.set_tensor(pair.first, pair.second);
-                }
+            for (auto&& input : inputs) {
+                self._request.set_tensor(input.first, input.second);
             }
             // TODO: check for None so next async infer userdata can be updated
             // if (!userdata.empty())
@@ -169,18 +161,18 @@ void regclass_InferRequest(py::module m) {
     cls.def(
         "set_callback",
         [](InferRequestWrapper& self, py::function f_callback) {
-            self._request.set_callback([&self, f_callback](std::exception_ptr exceptionPtr) {
+            self._request.set_callback([&self, f_callback](std::exception_ptr exception_ptr) {
                 self._endTime = Time::now();
                 try {
-                    if (exceptionPtr) {
-                        std::rethrow_exception(exceptionPtr);
+                    if (exception_ptr) {
+                        std::rethrow_exception(exception_ptr);
                     }
                 } catch (const std::exception& e) {
                     IE_THROW() << "Caught exception: " << e.what();
                 }
                 // Acquire GIL, execute Python function
                 py::gil_scoped_acquire acquire;
-                f_callback(exceptionPtr);
+                f_callback(exception_ptr);
             });
         },
         py::arg("f_callback"));
