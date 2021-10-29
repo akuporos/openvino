@@ -10,7 +10,6 @@
 
 PYBIND11_MAKE_OPAQUE(Containers::TensorIndexMap);
 PYBIND11_MAKE_OPAQUE(Containers::TensorNameMap);
-PYBIND11_MAKE_OPAQUE(Containers::InferResults)
 
 namespace py = pybind11;
 
@@ -23,9 +22,4 @@ void regclass_TensorIndexMap(py::module m) {
 void regclass_TensorNameMap(py::module m) {
     auto tensor_name_map = py::bind_map<TensorNameMap>(m, "TensorNameMap");
 }
-
-void regclass_InferResults(py::module m) {
-    auto infer_results = py::bind_vector<InferResults>(m, "InferResults");
-}
-
 }  // namespace Containers

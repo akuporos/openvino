@@ -18,5 +18,4 @@ namespace Containers {
 
     void regclass_TensorIndexMap(py::module m);
     void regclass_TensorNameMap(py::module m);
-    void regclass_InferResults(py::module m);
 }

@@ -143,7 +143,6 @@ PYBIND11_MODULE(pyopenvino, m) {
     // Registering specific types of containers
     Containers::regclass_TensorIndexMap(m);
     Containers::regclass_TensorNameMap(m);
-    Containers::regclass_InferResults(m);
 
     regclass_ExecutableNetwork(m);
     regclass_InferRequest(m);
