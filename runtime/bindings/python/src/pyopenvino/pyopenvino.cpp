@@ -31,7 +31,7 @@
 #include "pyopenvino/core/ie_network.hpp"
 #include "pyopenvino/core/ie_parameter.hpp"
 #include "pyopenvino/core/ie_preprocess_info.hpp"
-#include "pyopenvino/core/ie_version.hpp"
+#include "pyopenvino/core/version.hpp"
 #include "pyopenvino/core/tensor.hpp"
 #include "pyopenvino/core/tensor_description.hpp"
 #include "pyopenvino/frontend/frontend.hpp"
