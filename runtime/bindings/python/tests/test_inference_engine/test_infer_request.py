@@ -43,6 +43,23 @@ test_net_xml, test_net_bin = model_path(is_myriad)
 path_to_img = image_path()
 
 
+@pytest.mark.skip(reason="ProfilingInfo has to be bound")
+def test_get_profiling_info(device):
+    ie_core = Core()
+    func = ie_core.read_model(test_net_xml, test_net_bin)
+    ie_core.set_config({"PERF_COUNT": "YES"}, device)
+    exec_net = ie_core.compile_model(func, device)
+    img = read_image()
+    request = exec_net.create_infer_request()
+    request.infer({0: img})
+    pc = request.get_profiling_info()
+
+    assert pc["29"]["status"] == "EXECUTED"
+    assert pc["29"]["layer_type"] == "FullyConnected"
+    del exec_net
+    del ie_core
+
+
 def test_tensor_setter(device):
     ie_core = Core()
     func = ie_core.read_model(test_net_xml, test_net_bin)
