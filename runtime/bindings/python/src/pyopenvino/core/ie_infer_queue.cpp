@@ -100,7 +100,7 @@ public:
 
     void setDefaultCallbacks() {
         for (size_t handle = 0; handle < _requests.size(); handle++) {
-            _requests[handle]._request.set_callback([this, handle /* ... */](std::exception_ptr exceptionPtr) {
+            _requests[handle]._request.set_callback([this, handle /* ... */](std::exception_ptr exception_ptr) {
                 _requests[handle]._endTime = Time::now();
                 // Add idle handle to queue
                 _idle_handles.push(handle);
@@ -113,11 +113,11 @@ public:
     void setCustomCallbacks(py::function f_callback) {
         for (size_t handle = 0; handle < _requests.size(); handle++) {
             _requests[handle]._request.set_callback(
-                [this, f_callback, handle /* ... */](std::exception_ptr exceptionPtr) {
+                [this, f_callback, handle /* ... */](std::exception_ptr exception_ptr) {
                     _requests[handle]._endTime = Time::now();
                     try {
-                        if (exceptionPtr) {
-                            std::rethrow_exception(exceptionPtr);
+                        if (exception_ptr) {
+                            std::rethrow_exception(exception_ptr);
                         }
                     } catch (const std::exception& e) {
                         IE_THROW() << "Caught exception: " << e.what();
