@@ -113,7 +113,7 @@ public:
     void setCustomCallbacks(py::function f_callback) {
         for (size_t handle = 0; handle < _requests.size(); handle++) {
             _requests[handle]._request.set_callback(
-                [this, f_callback, handle /* ... */](std::exception_ptr exception_ptr) {
+                [this, f_callback, handle](std::exception_ptr exception_ptr) {
                     _requests[handle]._endTime = Time::now();
                     try {
                         if (exception_ptr) {
@@ -121,7 +121,6 @@ public:
                         }
                     } catch (const std::exception& e) {
                         IE_THROW() << "Caught exception: " << e.what();
-                        ;
                     }
                     // Acquire GIL, execute Python function
                     py::gil_scoped_acquire acquire;
