@@ -1,6 +1,8 @@
 # Copyright (C) 2021 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
+import numpy as np
+
 from openvino.pyopenvino import TBlobFloat32
 from openvino.pyopenvino import TBlobFloat64
 from openvino.pyopenvino import TBlobInt64
@@ -14,8 +16,6 @@ from openvino.pyopenvino import TBlobUint8
 from openvino.pyopenvino import TensorDesc
 from openvino.pyopenvino import InferRequest
 from openvino.pyopenvino import Tensor
-
-import numpy as np
 
 
 precision_map = {"FP32": np.float32,
