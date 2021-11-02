@@ -6,7 +6,7 @@ import os
 import pytest
 
 from tests.test_inference_engine.helpers import model_path, read_image
-from openvino import Core, Blob, TensorDesc, StatusCode
+from openvino import Core, Blob, TensorDesc, StatusCode, Tensor
 
 
 is_myriad = os.environ.get("TEST_DEVICE") == "MYRIAD"
