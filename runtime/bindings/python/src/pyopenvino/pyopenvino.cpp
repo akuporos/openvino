@@ -36,6 +36,7 @@
 #include "pyopenvino/core/tensor.hpp"
 #include "pyopenvino/core/tensor_description.hpp"
 #include "pyopenvino/core/version.hpp"
+#include "pyopenvino/core/profiling_info.hpp"
 #include "pyopenvino/graph/dimension.hpp"
 #include "pyopenvino/graph/layout.hpp"
 #include "pyopenvino/graph/ops/constant.hpp"
@@ -149,6 +150,7 @@ PYBIND11_MODULE(pyopenvino, m) {
     regclass_Parameter(m);
     regclass_InputInfo(m);
     // regclass_InferQueue(m);
+    regclass_ProfilingInfo(m);
     regclass_PreProcessInfo(m);
 
     regmodule_offline_transformations(m);
