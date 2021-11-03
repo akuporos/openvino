@@ -6,7 +6,7 @@ import os
 import pytest
 
 from tests.test_inference_engine.helpers import model_path, read_image
-from openvino import Core, Blob, TensorDesc, StatusCode, Tensor
+from openvino import Core, Tensor
 
 
 is_myriad = os.environ.get("TEST_DEVICE") == "MYRIAD"
@@ -46,7 +46,7 @@ def test_tensor_setter(device):
     assert np.allclose(tensor.data, t1.data, atol=1e-2, rtol=1e-2)
 
     res = request1.infer({0: tensor})
-    res_1 = np.sort(res[0].data)
+    res_1 = np.sort(res[0])
     t2 = request1.get_tensor("fc_out")
     assert np.allclose(t2.data, res[0].data, atol=1e-2, rtol=1e-2)
 
@@ -135,3 +135,21 @@ def test_cancel(device):
     with pytest.raises(RuntimeError) as e:
         request.wait_for(1)
     assert "[ INFER_CANCELLED ]" in str(e.value)
+
+
+def test_infer_mixed_keys(device):
+    ie_core = Core()
+    func = ie_core.read_model(test_net_xml, test_net_bin)
+    ie_core.set_config({"PERF_COUNT": "YES"}, device)
+    exec_net = ie_core.compile_model(func, device)
+
+    img = read_image()
+    tensor = Tensor(img)
+
+    data2 = np.ones(shape=(1, 10), dtype=np.float32)
+    tensor2 = Tensor(data2)
+
+    request = exec_net.create_infer_request()
+    with pytest.raises(TypeError) as e:
+        request.infer({0: tensor, "fc_out": tensor2})
+    assert "incompatible function arguments." in str(e.value)
