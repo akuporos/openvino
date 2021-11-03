@@ -36,12 +36,16 @@ precision_map = {"FP32": np.float32,
 
 def normalize_inputs(py_dict: dict) -> dict:
     """Normalize a dictionary of inputs to contiguous numpy arrays."""
-    return {k: (Tensor(np.ascontiguousarray(v)) if isinstance(v, np.ndarray) else v)
+    return {k: (Tensor(v) if isinstance(v, np.ndarray) else v)
             for k, v in py_dict.items()}
 
 # flake8: noqa: D102
-def infer(request: InferRequest, inputs: dict = None) -> dict:
-    results = request._infer(inputs=normalize_inputs(inputs if inputs is not None else {}))
+def infer(request: InferRequest, inputs: dict = None) -> list:
+    res = request._infer(inputs=normalize_inputs(inputs if inputs is not None else {}))
+    results = []
+    for tensor in res:
+        results.append(tensor.data.copy())
+    results = np.asarray(results)
     return results
 
 # flake8: noqa: D102
