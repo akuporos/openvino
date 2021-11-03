@@ -31,8 +31,8 @@ public:
     // bool user_callback_defined;
     // py::function user_callback;
 
-    double getLatency() {
-        auto execTime = std::chrono::duration_cast<ns>(_endTime - _startTime);
+    double get_latency() {
+        auto execTime = std::chrono::duration_cast<ns>(_end_time - _start_time);
         return static_cast<double>(execTime.count()) * 0.000001;
     }
 
@@ -40,8 +40,8 @@ public:
     std::vector<ov::Output<const ov::Node>> _inputs;
     std::vector<ov::Output<const ov::Node>> _outputs;
 
-    Time::time_point _startTime;
-    Time::time_point _endTime;
+    Time::time_point _start_time;
+    Time::time_point _end_time;
 };
 
 void regclass_InferRequest(py::module m);

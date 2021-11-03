@@ -101,7 +101,7 @@ public:
     void setDefaultCallbacks() {
         for (size_t handle = 0; handle < _requests.size(); handle++) {
             _requests[handle]._request.set_callback([this, handle /* ... */](std::exception_ptr exception_ptr) {
-                _requests[handle]._endTime = Time::now();
+                _requests[handle]._end_time = Time::now();
                 // Add idle handle to queue
                 _idle_handles.push(handle);
                 // Notify locks in getIdleRequestId() or waitAll() functions
@@ -113,7 +113,7 @@ public:
     void setCustomCallbacks(py::function f_callback) {
         for (size_t handle = 0; handle < _requests.size(); handle++) {
             _requests[handle]._request.set_callback([this, f_callback, handle](std::exception_ptr exception_ptr) {
-                _requests[handle]._endTime = Time::now();
+                _requests[handle]._end_time = Time::now();
                 try {
                     if (exception_ptr) {
                         std::rethrow_exception(exception_ptr);
@@ -183,7 +183,7 @@ public:
 //             // Now GIL can be released - we are NOT working with Python objects in this block
 //             {
 //                 py::gil_scoped_release release;
-//                 self._requests[handle]._startTime = Time::now();
+//                 self._requests[handle]._start_time = Time::now();
 //                 // Start InferRequest in asynchronus mode
 //                 self._requests[handle]._request.start_async();
 //             }
