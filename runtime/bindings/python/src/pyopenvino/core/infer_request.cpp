@@ -51,9 +51,9 @@ void regclass_InferRequest(py::module m) {
                 self._request.set_input_tensor(input.first, input.second);
             }
             // Call Infer function
-            self._startTime = Time::now();
+            self._start_time = Time::now();
             self._request.infer();
-            self._endTime = Time::now();
+            self._end_time = Time::now();
             Containers::InferResults results;
             for (auto& out : self._outputs) {
                 results.push_back(self._request.get_tensor(out));
@@ -70,12 +70,12 @@ void regclass_InferRequest(py::module m) {
                 self._request.set_tensor(input.first, input.second);
             }
             // Call Infer function
-            self._startTime = Time::now();
+            self._start_time = Time::now();
             self._request.infer();
-            self._endTime = Time::now();
-            Containers::TensorNameMap results;
+            self._end_time = Time::now();
+            Containers::InferResults results;
             for (auto& out : self._outputs) {
-                results[out.get_any_name()] = self._request.get_tensor(out);
+                results.push_back(self._request.get_tensor(out));
             }
             return results;
         },
@@ -106,7 +106,7 @@ void regclass_InferRequest(py::module m) {
             //         py::print("There is no callback function!");
             //     }
             // }
-            self._startTime = Time::now();
+            self._start_time = Time::now();
             self._request.start_async();
         },
         py::arg("inputs"));
@@ -136,7 +136,7 @@ void regclass_InferRequest(py::module m) {
             //         py::print("There is no callback function!");
             //     }
             // }
-            self._startTime = Time::now();
+            self._start_time = Time::now();
             self._request.start_async();
         },
         py::arg("inputs"));
@@ -162,7 +162,7 @@ void regclass_InferRequest(py::module m) {
         "set_callback",
         [](InferRequestWrapper& self, py::function f_callback) {
             self._request.set_callback([&self, f_callback](std::exception_ptr exception_ptr) {
-                self._endTime = Time::now();
+                self._end_time = Time::now();
                 try {
                     if (exception_ptr) {
                         std::rethrow_exception(exception_ptr);
@@ -261,6 +261,6 @@ void regclass_InferRequest(py::module m) {
     });
 
     cls.def_property_readonly("latency", [](InferRequestWrapper& self) {
-        return self.getLatency();
+        return self.get_latency();
     });
 }
