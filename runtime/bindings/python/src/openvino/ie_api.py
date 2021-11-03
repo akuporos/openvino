@@ -2,6 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import numpy as np
+import copy
 
 from openvino.pyopenvino import TBlobFloat32
 from openvino.pyopenvino import TBlobFloat64
@@ -42,11 +43,7 @@ def normalize_inputs(py_dict: dict) -> dict:
 # flake8: noqa: D102
 def infer(request: InferRequest, inputs: dict = None) -> list:
     res = request._infer(inputs=normalize_inputs(inputs if inputs is not None else {}))
-    results = []
-    for tensor in res:
-        results.append(tensor.data.copy())
-    results = np.asarray(results)
-    return results
+    return np.asarray([copy.deepcopy(tensor.data) for tensor in res])
 
 # flake8: noqa: D102
 def start_async(request: InferRequest, inputs: dict = None) -> None:  # type: ignore
