@@ -41,7 +41,7 @@ def normalize_inputs(py_dict: dict) -> dict:
             for k, v in py_dict.items()}
 
 # flake8: noqa: D102
-def infer(request: InferRequest, inputs: dict = None) -> list:
+def infer(request: InferRequest, inputs: dict = None) -> np.ndarray:
     res = request._infer(inputs=normalize_inputs(inputs if inputs is not None else {}))
     return np.asarray([copy.deepcopy(tensor.data) for tensor in res])
 
