@@ -232,11 +232,9 @@ void regclass_InferRequest(py::module m) {
         },
         py::arg("tensor"));
 
-    cls.def(
-        "get_profiling_info",
-        [](InferRequestWrapper& self) {
-            return self._request.get_profiling_info();
-        });
+    cls.def("get_profiling_info", [](InferRequestWrapper& self) {
+        return self._request.get_profiling_info();
+    });
 
     cls.def_property_readonly("input_tensors", [](InferRequestWrapper& self) {
         return self._inputs;
