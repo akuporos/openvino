@@ -57,19 +57,19 @@ void regclass_ExecutableNetwork(py::module m) {
 
     cls.def("export_model", &ov::runtime::ExecutableNetwork::export_model, py::arg("network_model"));
 
-    // cls.def(
-    //     "get_config",
-    //     [](ov::runtime::ExecutableNetwork& self, const std::string& name) -> py::handle {
-    //         return Common::parse_parameter(self.get_config(name));
-    //     },
-    //     py::arg("name"));
+    cls.def(
+        "get_config",
+        [](ov::runtime::ExecutableNetwork& self, const std::string& name) -> py::handle {
+            return Common::parse_parameter(self.get_config(name));
+        },
+        py::arg("name"));
 
-    // cls.def(
-    //     "get_metric",
-    //     [](ov::runtime::ExecutableNetwork& self, const std::string& name) -> py::handle {
-    //         return Common::parse_parameter(self.get_metric(name));
-    //     },
-    //     py::arg("name"));
+    cls.def(
+        "get_metric",
+        [](ov::runtime::ExecutableNetwork& self, const std::string& name) -> py::handle {
+            return Common::parse_parameter(self.get_metric(name));
+        },
+        py::arg("name"));
 
     cls.def("get_runtime_function", &ov::runtime::ExecutableNetwork::get_runtime_function);
 
