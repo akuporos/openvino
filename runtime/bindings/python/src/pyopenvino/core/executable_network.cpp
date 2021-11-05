@@ -4,11 +4,11 @@
 
 #include "openvino/runtime/executable_network.hpp"
 
-#include<pybind11/stl.h>
+#include <pybind11/stl.h>
 
 #include "common.hpp"
-#include "pyopenvino/core/infer_request.hpp"
 #include "pyopenvino/core/containers.hpp"
+#include "pyopenvino/core/infer_request.hpp"
 
 PYBIND11_MAKE_OPAQUE(Containers::TensorIndexMap);
 PYBIND11_MAKE_OPAQUE(Containers::TensorNameMap);
@@ -26,7 +26,7 @@ void regclass_ExecutableNetwork(py::module m) {
 
     cls.def(
         "_infer_new_request",
-        [](ov::runtime::ExecutableNetwork& self,const py::dict& inputs) {
+        [](ov::runtime::ExecutableNetwork& self, const py::dict& inputs) {
             auto request = self.create_infer_request();
             const auto key = inputs.begin()->first;
             if (!inputs.empty()) {

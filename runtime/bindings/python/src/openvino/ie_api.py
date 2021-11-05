@@ -110,11 +110,6 @@ class BlobWrapper:
         else:
             raise AttributeError(f"Unsupported precision {precision} for Blob")
 
-# flake8: noqa: D102
-def blob_from_file(path_to_bin_file: str) -> BlobWrapper:
-    array = np.fromfile(path_to_bin_file, dtype=np.uint8)
-    tensor_desc = TensorDesc("U8", array.shape, "C")
-    return BlobWrapper(tensor_desc, array)
 
 # flake8: noqa: D102
 def tensor_from_file(path: str) -> Tensor:
