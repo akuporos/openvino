@@ -46,8 +46,6 @@ namespace Common
 
     PyObject* parse_parameter(const InferenceEngine::Parameter& param);
 
-    bool is_TBlob(const py::handle& blob);
-
     const std::shared_ptr<InferenceEngine::Blob> cast_to_blob(const py::handle& blob);
 
     const Containers::TensorNameMap cast_to_tensor_name_map(const py::dict& inputs);
@@ -56,10 +54,5 @@ namespace Common
 
     const ov::runtime::Tensor& cast_to_tensor(const py::handle& tensor);
 
-    void blob_from_numpy(const py::handle& _arr, InferenceEngine::Blob::Ptr &blob);
-
-    void set_request_blobs(InferenceEngine::InferRequest& request, const py::dict& dictonary);
-
     uint32_t get_optimal_number_of_requests(const InferenceEngine::ExecutableNetwork& actual);
-
 }; // namespace Common

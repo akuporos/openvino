@@ -2,13 +2,14 @@
 # SPDX-License-Identifier: Apache-2.0
 
 import os
+from numpy.core.fromnumeric import argmax
 import pytest
 import numpy as np
 
 from ..conftest import model_path, image_path
 from openvino.impl import Function, ConstOutput, Shape
 
-from openvino import Core
+from openvino import Core, Tensor
 
 is_myriad = os.environ.get("TEST_DEVICE") == "MYRIAD"
 test_net_xml, test_net_bin = model_path(is_myriad)
@@ -25,25 +26,6 @@ def read_image():
     image = image.transpose((2, 0, 1)).astype(np.float32)
     image = image.reshape((n, c, h, w))
     return image
-
-
-def test_get_metric(device):
-    core = Core()
-    func = core.read_model(model=test_net_xml, weights=test_net_bin)
-    exec_net = core.compile_model(func, device)
-    network_name = exec_net.get_metric("NETWORK_NAME")
-    assert network_name == "test_model"
-
-
-@pytest.mark.skipif(os.environ.get("TEST_DEVICE", "CPU") != "CPU", reason="Device dependent test")
-def test_get_config(device):
-    core = Core()
-    if core.get_metric(device, "FULL_DEVICE_NAME") == "arm_compute::NEON":
-        pytest.skip("Can't run on ARM plugin due-to CPU dependent test")
-    func = core.read_model(model=test_net_xml, weights=test_net_bin)
-    exec_net = core.compile_model(func, device)
-    config = exec_net.get_config("PERF_COUNT")
-    assert config == "NO"
 
 
 def test_get_runtime_function(device):
@@ -236,3 +218,60 @@ def test_inputs_docs(device):
     input_0 = inputs[0]
     expected_string = "openvino.impl.ConstOutput wraps ov::Output<Const ov::Node >"
     assert input_0.__doc__ == expected_string
+
+
+def test_infer_new_request_numpy(device):
+    ie = Core()
+    func = ie.read_model(model=test_net_xml, weights=test_net_bin)
+    img = read_image()
+    exec_net = ie.compile_model(func, device)
+    res = exec_net.infer_new_request({'data': img})
+    assert np.argmax(res) == 2
+
+
+def test_infer_new_request_tensor_numpy_copy(device):
+    ie = Core()
+    func = ie.read_model(model=test_net_xml, weights=test_net_bin)
+    img = read_image()
+    tensor = Tensor(img)
+    exec_net = ie.compile_model(func, device)
+    res_tensor = exec_net.infer_new_request({'data': tensor})
+    res_img = exec_net.infer_new_request({'data': tensor})
+    assert np.argmax(res_tensor) == 2
+    assert np.argmax(res_tensor) == np.argmax(res_img)
+
+
+def test_infer_tensor_numpy_shared_memory(device):
+    ie = Core()
+    func = ie.read_model(model=test_net_xml, weights=test_net_bin)
+    img = read_image()
+    img = np.ascontiguousarray(img)
+    tensor = Tensor(img, shared_memory=True)
+    exec_net = ie.compile_model(func, device)
+    res_tensor = exec_net.infer_new_request({'data': tensor})
+    res_img = exec_net.infer_new_request({'data': tensor})
+    assert np.argmax(res_tensor) == 2
+    assert np.argmax(res_tensor) == np.argmax(res_img)
+
+
+def test_infer_new_request_wrong_port_name(device):
+    ie = Core()
+    func = ie.read_model(model=test_net_xml, weights=test_net_bin)
+    img = read_image()
+    tensor = Tensor(img)
+    exec_net = ie.compile_model(func, device)
+    with pytest.raises(RuntimeError) as e:
+        exec_net.infer_new_request({'_data_': tensor})
+    assert "Port for tensor name _data_ was not found." in str(e.value)
+
+
+def test_infer_tensor_wrong_input_data(device):
+    ie = Core()
+    func = ie.read_model(model=test_net_xml, weights=test_net_bin)
+    img = read_image()
+    img = np.ascontiguousarray(img)
+    tensor = Tensor(img, shared_memory=True)
+    exec_net = ie.compile_model(func, device)
+    with pytest.raises(TypeError) as e:
+        exec_net.infer_new_request({4.5: tensor})
+    assert "Incompatible key type!" in str(e.value)

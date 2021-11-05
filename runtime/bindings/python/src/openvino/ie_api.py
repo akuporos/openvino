@@ -17,6 +17,7 @@ from openvino.pyopenvino import TBlobUint8
 from openvino.pyopenvino import TensorDesc
 from openvino.pyopenvino import InferRequest
 from openvino.pyopenvino import Tensor
+from openvino.pyopenvino import ExecutableNetwork
 
 
 precision_map = {"FP32": np.float32,
@@ -43,6 +44,11 @@ def normalize_inputs(py_dict: dict) -> dict:
 # flake8: noqa: D102
 def infer(request: InferRequest, inputs: dict = None) -> np.ndarray:
     res = request._infer(inputs=normalize_inputs(inputs if inputs is not None else {}))
+    return np.asarray([copy.deepcopy(tensor.data) for tensor in res])
+
+
+def infer_new_request(exec_net: ExecutableNetwork, inputs: dict = None) -> np.ndarray:
+    res = exec_net._infer_new_request(inputs=normalize_inputs(inputs if inputs is not None else {}))
     return np.asarray([copy.deepcopy(tensor.data) for tensor in res])
 
 # flake8: noqa: D102
