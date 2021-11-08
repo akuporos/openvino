@@ -17,8 +17,8 @@ from openvino.pyopenvino import TBlobInt8
 from openvino.pyopenvino import TBlobUint8
 from openvino.pyopenvino import TensorDesc
 from openvino.pyopenvino import InferRequest
-from openvino.pyopenvino import Tensor
 from openvino.pyopenvino import ExecutableNetwork
+from openvino.pyopenvino import Tensor
 
 
 precision_map = {"FP32": np.float32,
@@ -43,14 +43,18 @@ def normalize_inputs(py_dict: dict) -> dict:
             for k, v in py_dict.items()}
 
 # flake8: noqa: D102
-def infer(request: InferRequest, inputs: dict = None) -> List[np.ndarray]:
+def infer(request: InferRequest, inputs: dict = None) -> np.ndarray:
     res = request._infer(inputs=normalize_inputs(inputs if inputs is not None else {}))
+    # Required to return list since np.ndarray forces all of tensors data to match in
+    # dimensions. This results in errors when running ops like variadic split.
     return [copy.deepcopy(tensor.data) for tensor in res]
 
 
-def infer_new_request(exec_net: ExecutableNetwork, inputs: dict = None) -> np.ndarray:
+def infer_new_request(exec_net: ExecutableNetwork, inputs: dict = None) -> List[np.ndarray]:
     res = exec_net._infer_new_request(inputs=normalize_inputs(inputs if inputs is not None else {}))
-    return np.asarray([copy.deepcopy(tensor.data) for tensor in res])
+    # Required to return list since np.ndarray forces all of tensors data to match in
+    # dimensions. This results in errors when running ops like variadic split.
+    return [copy.deepcopy(tensor.data) for tensor in res]
 
 # flake8: noqa: D102
 def start_async(request: InferRequest, inputs: dict = None) -> None:  # type: ignore
@@ -116,7 +120,6 @@ def blob_from_file(path_to_bin_file: str) -> BlobWrapper:
     array = np.fromfile(path_to_bin_file, dtype=np.uint8)
     tensor_desc = TensorDesc("U8", array.shape, "C")
     return BlobWrapper(tensor_desc, array)
-
 
 # flake8: noqa: D102
 def tensor_from_file(path: str) -> Tensor:
