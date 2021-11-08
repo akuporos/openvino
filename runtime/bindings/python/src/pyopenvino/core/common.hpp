@@ -46,6 +46,8 @@ namespace Common
 
     PyObject* parse_parameter(const InferenceEngine::Parameter& param);
 
+    bool is_TBlob(const py::handle& blob);
+
     const std::shared_ptr<InferenceEngine::Blob> cast_to_blob(const py::handle& blob);
 
     const Containers::TensorNameMap cast_to_tensor_name_map(const py::dict& inputs);
