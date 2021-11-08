@@ -16,6 +16,7 @@ except DistributionNotFound:
 from openvino.ie_api import BlobWrapper
 from openvino.ie_api import infer
 from openvino.ie_api import start_async
+from openvino.ie_api import blob_from_file
 from openvino.ie_api import tensor_from_file
 from openvino.ie_api import infer_new_request
 

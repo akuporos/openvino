@@ -185,6 +185,32 @@ PyObject* parse_parameter(const InferenceEngine::Parameter& param) {
     }
 }
 
+bool is_TBlob(const py::handle& blob) {
+    if (py::isinstance<InferenceEngine::TBlob<float>>(blob)) {
+        return true;
+    } else if (py::isinstance<InferenceEngine::TBlob<double>>(blob)) {
+        return true;
+    } else if (py::isinstance<InferenceEngine::TBlob<int8_t>>(blob)) {
+        return true;
+    } else if (py::isinstance<InferenceEngine::TBlob<int16_t>>(blob)) {
+        return true;
+    } else if (py::isinstance<InferenceEngine::TBlob<int32_t>>(blob)) {
+        return true;
+    } else if (py::isinstance<InferenceEngine::TBlob<int64_t>>(blob)) {
+        return true;
+    } else if (py::isinstance<InferenceEngine::TBlob<uint8_t>>(blob)) {
+        return true;
+    } else if (py::isinstance<InferenceEngine::TBlob<uint16_t>>(blob)) {
+        return true;
+    } else if (py::isinstance<InferenceEngine::TBlob<uint32_t>>(blob)) {
+        return true;
+    } else if (py::isinstance<InferenceEngine::TBlob<uint64_t>>(blob)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
 const ov::runtime::Tensor& cast_to_tensor(const py::handle& tensor) {
     return tensor.cast<const ov::runtime::Tensor&>();
 }
@@ -251,6 +277,45 @@ const std::shared_ptr<InferenceEngine::Blob> cast_to_blob(const py::handle& blob
     } else {
         IE_THROW() << "Unsupported data type for when casting to blob!";
         // return nullptr;
+    }
+}
+
+void blob_from_numpy(const py::handle& arr, InferenceEngine::Blob::Ptr blob) {
+    if (py::isinstance<py::array_t<float>>(arr)) {
+        Common::fill_blob<float>(arr, blob);
+    } else if (py::isinstance<py::array_t<double>>(arr)) {
+        Common::fill_blob<double>(arr, blob);
+    } else if (py::isinstance<py::array_t<int8_t>>(arr)) {
+        Common::fill_blob<int8_t>(arr, blob);
+    } else if (py::isinstance<py::array_t<int16_t>>(arr)) {
+        Common::fill_blob<int16_t>(arr, blob);
+    } else if (py::isinstance<py::array_t<int32_t>>(arr)) {
+        Common::fill_blob<int32_t>(arr, blob);
+    } else if (py::isinstance<py::array_t<int64_t>>(arr)) {
+        Common::fill_blob<int64_t>(arr, blob);
+    } else if (py::isinstance<py::array_t<uint8_t>>(arr)) {
+        Common::fill_blob<uint8_t>(arr, blob);
+    } else if (py::isinstance<py::array_t<uint16_t>>(arr)) {
+        Common::fill_blob<uint16_t>(arr, blob);
+    } else if (py::isinstance<py::array_t<uint32_t>>(arr)) {
+        Common::fill_blob<uint32_t>(arr, blob);
+    } else if (py::isinstance<py::array_t<uint64_t>>(arr)) {
+        Common::fill_blob<uint64_t>(arr, blob);
+    } else {
+        IE_THROW() << "Unsupported data type for when filling blob!";
+    }
+}
+
+void set_request_blobs(InferenceEngine::InferRequest& request, const py::dict& dictonary) {
+    for (auto&& pair : dictonary) {
+        const std::string& name = pair.first.cast<std::string>();
+        if (py::isinstance<py::array>(pair.second)) {
+            Common::blob_from_numpy(pair.second, request.GetBlob(name));
+        } else if (is_TBlob(pair.second)) {
+            request.SetBlob(name, Common::cast_to_blob(pair.second));
+        } else {
+            IE_THROW() << "Unable to set blob " << name << "!";
+        }
     }
 }
 
