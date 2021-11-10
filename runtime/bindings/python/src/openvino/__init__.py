@@ -13,10 +13,8 @@ try:
 except DistributionNotFound:
     __version__ = "0.0.0.dev0"
 
-from openvino.ie_api import BlobWrapper
 from openvino.ie_api import infer
 from openvino.ie_api import start_async
-from openvino.ie_api import blob_from_file
 from openvino.ie_api import tensor_from_file
 from openvino.ie_api import infer_new_request
 
@@ -38,7 +36,6 @@ from openvino.pyopenvino import TensorDesc
 from openvino.pyopenvino import get_version
 #from openvino.pyopenvino import InferQueue
 from openvino.pyopenvino import InferRequest  # TODO: move to ie_api?
-from openvino.pyopenvino import Blob
 from openvino.pyopenvino import PreProcessInfo
 from openvino.pyopenvino import MeanVariant
 from openvino.pyopenvino import ResizeAlgorithm
@@ -74,10 +71,6 @@ Node.__le__ = opset8.less_equal
 Node.__gt__ = opset8.greater
 Node.__ge__ = opset8.greater_equal
 
-# Patching for Blob class
-# flake8: noqa: F811
-# this class will be removed
-Blob = BlobWrapper
 # Patching ExecutableNetwork
 ExecutableNetwork.infer_new_request = infer_new_request
 # Patching InferRequest
