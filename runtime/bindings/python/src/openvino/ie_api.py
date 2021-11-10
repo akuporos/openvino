@@ -3,7 +3,8 @@
 
 import numpy as np
 import copy
-from typing import List
+from typing import Any, List, Union
+from openvino.utils.types import get_dtype
 
 from openvino.pyopenvino import TBlobFloat32
 from openvino.pyopenvino import TBlobFloat64
@@ -37,28 +38,39 @@ precision_map = {"FP32": np.float32,
                  "U64": np.uint64}
 
 
-def normalize_inputs(py_dict: dict) -> dict:
+def normalize_inputs(py_dict: dict, py_types: dict) -> dict:
     """Normalize a dictionary of inputs to contiguous numpy arrays."""
-    return {k: (Tensor(v) if isinstance(v, np.ndarray) else v)
-            for k, v in py_dict.items()}
+    for k, v in py_dict.items():
+        if isinstance(k, int):
+            ov_type = list(py_types.values())[k]
+        elif isinstance(k, str):
+            ov_type = py_types[k]
+        else:
+            raise TypeError("Incompatible key type! {}".format(k))
+        py_dict[k] = v if isinstance(v, Tensor) else Tensor(np.array(v, get_dtype(ov_type)))
+    return py_dict
 
-# flake8: noqa: D102
-def infer(request: InferRequest, inputs: dict = None) -> np.ndarray:
-    res = request._infer(inputs=normalize_inputs(inputs if inputs is not None else {}))
+
+def get_input_types(obj: Union[InferRequest, ExecutableNetwork]) -> dict:
+    return {i.get_node().get_friendly_name() : i.get_node().get_element_type() for i in obj.inputs}
+
+
+def infer(request: InferRequest, inputs: dict = {}) -> List[np.ndarray]:
+    res = request._infer(inputs=normalize_inputs(inputs, get_input_types(request)))
     # Required to return list since np.ndarray forces all of tensors data to match in
     # dimensions. This results in errors when running ops like variadic split.
     return [copy.deepcopy(tensor.data) for tensor in res]
 
 
-def infer_new_request(exec_net: ExecutableNetwork, inputs: dict = None) -> List[np.ndarray]:
-    res = exec_net._infer_new_request(inputs=normalize_inputs(inputs if inputs is not None else {}))
+def infer_new_request(exec_net: ExecutableNetwork, inputs: dict = {}) -> List[np.ndarray]:
+    res = exec_net._infer_new_request(inputs=normalize_inputs(inputs, get_input_types(exec_net)))
     # Required to return list since np.ndarray forces all of tensors data to match in
     # dimensions. This results in errors when running ops like variadic split.
     return [copy.deepcopy(tensor.data) for tensor in res]
 
-# flake8: noqa: D102
-def start_async(request: InferRequest, inputs: dict = None) -> None:  # type: ignore
-    request._start_async(inputs=normalize_inputs(inputs if inputs is not None else {}))
+
+def start_async(request: InferRequest, inputs: dict = {}) -> None:  # type: ignore
+    request._start_async(inputs=normalize_inputs(inputs, get_input_types(request)))
 
 # flake8: noqa: C901
 # Dispatch Blob types on Python side.
@@ -115,13 +127,13 @@ class BlobWrapper:
         else:
             raise AttributeError(f"Unsupported precision {precision} for Blob")
 
-# flake8: noqa: D102
+
 def blob_from_file(path_to_bin_file: str) -> BlobWrapper:
     array = np.fromfile(path_to_bin_file, dtype=np.uint8)
     tensor_desc = TensorDesc("U8", array.shape, "C")
     return BlobWrapper(tensor_desc, array)
 
-# flake8: noqa: D102
+
 def tensor_from_file(path: str) -> Tensor:
     """The data will be read with dtype of unit8"""
     return Tensor(np.fromfile(path, dtype=np.uint8))

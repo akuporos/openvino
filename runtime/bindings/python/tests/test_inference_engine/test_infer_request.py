@@ -163,6 +163,6 @@ def test_infer_mixed_keys(device):
     tensor2 = Tensor(data2)
 
     request = exec_net.create_infer_request()
-    with pytest.raises(TypeError) as e:
+    with pytest.raises(KeyError) as e:
         request.infer({0: tensor, "fc_out": tensor2})
-    assert "incompatible function arguments!" in str(e.value)
+    assert "'fc_out'" in str(e.value)

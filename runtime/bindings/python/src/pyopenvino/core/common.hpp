@@ -9,6 +9,8 @@
 #include <ie_plugin_config.hpp>
 #include <ie_blob.h>
 #include <ie_parameter.hpp>
+#include <openvino/core/type/element_type.hpp>
+#include <pybind11/stl.h>
 #include <pybind11/numpy.h>
 #include <pybind11/pybind11.h>
 #include <string>
@@ -21,6 +23,9 @@ namespace py = pybind11;
 
 namespace Common
 {
+    ov::runtime::Tensor tensor_from_numpy(py::array& array, bool shared_memory);
+    py::array as_contiguous(py::array& array, ov::element::Type type);
+
     template <typename T>
     void fill_blob(const py::handle& py_array, InferenceEngine::Blob::Ptr blob)
     {

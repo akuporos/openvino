@@ -278,9 +278,9 @@ def test_infer_new_request_wrong_port_name(device):
     img = read_image()
     tensor = Tensor(img)
     exec_net = ie.compile_model(func, device)
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(KeyError) as e:
         exec_net.infer_new_request({"_data_": tensor})
-    assert "Port for tensor name _data_ was not found." in str(e.value)
+    assert "'_data_'" in str(e.value)
 
 
 def test_infer_tensor_wrong_input_data(device):
