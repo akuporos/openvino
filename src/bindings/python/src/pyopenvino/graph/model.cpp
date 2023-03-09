@@ -21,6 +21,7 @@
 #include "pyopenvino/graph/ops/result.hpp"
 #include "pyopenvino/graph/ops/util/variable.hpp"
 #include "pyopenvino/graph/rt_map.hpp"
+#include "pyopenvino/graph/any.hpp"
 #include "pyopenvino/utils/utils.hpp"
 
 namespace py = pybind11;
@@ -741,8 +742,9 @@ void regclass_graph_Model(py::module m) {
             std::vector<std::string> cpp_args(path.size());
             for (size_t i = 0; i < path.size(); i++) {
                 cpp_args[i] = path[i].cast<std::string>();
-            }
-            return Common::utils::from_ov_any(self.get_rt_info<ov::Any>(cpp_args));
+            }    
+            // return py::cast(self.get_rt_info<ov::Any>(cpp_args));
+            return self.get_rt_info<ov::Any>(cpp_args);
         },
         py::arg("path"),
         R"(
@@ -757,7 +759,7 @@ void regclass_graph_Model(py::module m) {
     model.def(
         "get_rt_info",
         [](const ov::Model& self, const py::str& path) -> py::object {
-            return Common::utils::from_ov_any(self.get_rt_info<ov::Any>(path.cast<std::string>()));
+            return py::cast(self.get_rt_info<ov::Any>(path.cast<std::string>()));
         },
         py::arg("path"),
         R"(

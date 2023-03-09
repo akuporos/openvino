@@ -8,12 +8,13 @@ from pathlib import Path
 
 import numpy as np
 
-from openvino._pyopenvino import Model
+from openvino._pyopenvino import Model as ModelBase
 from openvino._pyopenvino import Core as CoreBase
 from openvino._pyopenvino import CompiledModel as CompiledModelBase
 from openvino._pyopenvino import AsyncInferQueue as AsyncInferQueueBase
 from openvino._pyopenvino import ConstOutput
 from openvino._pyopenvino import Tensor
+from openvino._pyopenvino import OVAny as OVAnyBase
 
 from openvino.runtime.utils.data_helpers import (
     _InferRequestWrapper,
@@ -21,6 +22,22 @@ from openvino.runtime.utils.data_helpers import (
     tensor_from_file,
 )
 
+# OVAny m = get_rt_info()
+# bool val = m.astype(bool)
+# self[bool]
+
+# 
+class OVAny(OVAnyBase):
+    def __init__(self, other: OVAnyBase) -> None:
+        super().__init__(other)
+
+    def astype(self, dtype : Any):
+        # return self.as<bool>();
+        return self[dtype]()
+
+class Model(ModelBase):
+    def get_rt_info(self, path):
+        return OVAny(self.get_rt_info(path))
 
 class InferRequest(_InferRequestWrapper):
     """InferRequest class represents infer request which can be run in asynchronous or synchronous manners."""
