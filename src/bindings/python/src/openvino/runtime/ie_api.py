@@ -2,13 +2,14 @@
 # Copyright (C) 2018-2023 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 
-from typing import Any, Iterable, Union, Optional
+from typing import Any, Iterable, Union, Dict, Optional, List
 from pathlib import Path
 import warnings
 
 import numpy as np
 
 from openvino._pyopenvino import Model as ModelBase
+from openvino._pyopenvino import OVAny as OVAnyBase
 from openvino._pyopenvino import Core as CoreBase
 from openvino._pyopenvino import CompiledModel as CompiledModelBase
 from openvino._pyopenvino import AsyncInferQueue as AsyncInferQueueBase
@@ -21,6 +22,14 @@ from openvino.runtime.utils.data_helpers import (
     _data_dispatch,
     tensor_from_file,
 )
+
+class OVAny(OVAnyBase):
+    def __init__(self, other: OVAnyBase) -> None:
+        super().__init__(other)
+
+    def astype(self, dtype : Any):
+        # return self.as<bool>();
+        return self[dtype]()
 
 
 def _deprecated_memory_arg(shared_memory: bool, share_inputs: bool) -> bool:
@@ -49,6 +58,12 @@ class Model(ModelBase):
             super().__init__(*args, **kwargs)
         if kwargs and not args:
             super().__init__(**kwargs)
+
+    def get_rt_info(self, path: Union[List, str] = None):
+        if path is None:
+            return OVAny(super().get_rt_info())
+        else:
+            return OVAny(super().get_rt_info(path))
 
 
 class InferRequest(_InferRequestWrapper):

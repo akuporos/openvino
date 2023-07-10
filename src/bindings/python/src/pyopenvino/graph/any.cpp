@@ -25,6 +25,23 @@ void regclass_graph_Any(py::module m) {
     ov_any.doc() = "openvino.runtime.OVAny provides object wrapper for OpenVINO"
                    "ov::Any class. It allows to pass different types of objects"
                    "into C++ based core of the project.";
+    
+    ov_any.def(py::init([](ov::Any& other) {
+            return other;
+        }),
+        py::arg("other"));
+
+    ov_any.def("__class_getitem__", [](ov::Any& self, py::object &key) {
+            std::cout << "AAAAAAAAAAAAAAA" << std::endl;
+            if (check_key(key, py::bool_())) {
+                return self.as<bool>();
+            } else if (check_key(key, py::int_())) {
+                return self.as<bool>();
+            } else {
+                throw py::type_error("Type is not supported!");
+            }
+        });
+
 
     ov_any.def(py::init([](py::object& input_value) {
         return ov::Any(Common::utils::py_object_to_any(input_value));
