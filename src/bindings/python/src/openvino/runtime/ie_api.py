@@ -29,6 +29,7 @@ class OVAny(OVAnyBase):
 
     def astype(self, dtype : Any):
         # return self.as<bool>();
+        print(OVAnyBase[bool]())
         return self[dtype]()
 
 
@@ -61,7 +62,7 @@ class Model(ModelBase):
 
     def get_rt_info(self, path: Union[List, str] = None):
         if path is None:
-            return OVAny(super().get_rt_info())
+            return super().get_rt_info()
         else:
             return OVAny(super().get_rt_info(path))
 

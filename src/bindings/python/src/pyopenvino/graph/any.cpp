@@ -31,7 +31,7 @@ void regclass_graph_Any(py::module m) {
         }),
         py::arg("other"));
 
-    ov_any.def("__class_getitem__", [](ov::Any& self, py::object &key) {
+    ov_any.def("__class_getitem__", [](py::object key) {
             std::cout << "AAAAAAAAAAAAAAA" << std::endl;
             if (check_key(key, py::bool_())) {
                 return self.as<bool>();
