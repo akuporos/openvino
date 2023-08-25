@@ -3,12 +3,14 @@
 #
 
 from openvino import Core, properties
+from snippets import get_model
+
+model = get_model()
 
 device_name = "CPU"
-xml_path = "model.xml"
 core = Core()
 core.set_property("CPU", properties.intel_cpu.sparse_weights_decompression_rate(0.8))
-model = core.read_model(model=xml_path)
+
 # ! [ov:intel_cpu:multi_threading:part0]
 # Use one logical processor for inference
 compiled_model_1 = core.compile_model(

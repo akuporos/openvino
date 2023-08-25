@@ -4,6 +4,10 @@
 
 import openvino as ov
 
+from snippets import get_model
+
+model = get_model()
+
 #! [part0]
 core = ov.Core()
 cpu_optimization_capabilities = core.get_property("CPU", ov.properties.device.capabilities())
@@ -11,7 +15,6 @@ cpu_optimization_capabilities = core.get_property("CPU", ov.properties.device.ca
 
 #! [part1]
 core = ov.Core()
-model = core.read_model("model.xml")
 compiled_model = core.compile_model(model, "CPU")
 inference_precision = core.get_property("CPU", ov.properties.hint.inference_precision())
 #! [part1]
