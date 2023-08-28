@@ -13,7 +13,7 @@ def MULTI_0():
     # Pre-configure MULTI globally with explicitly defined devices,
     # and compile the model on MULTI using the newly specified default device list.
     core.set_property(
-        device_name="MULTI", properties={"MULTI_DEVICE_PRIORITIES": "GPU,CPU"}
+        device_name="MULTI", properties={ov.properties.device.priorities(): "GPU,CPU"}
     )
     compiled_model = core.compile_model(model=model, device_name="MULTI")
 
@@ -22,9 +22,11 @@ def MULTI_0():
     # The following lines are equivalent:
     compiled_model = core.compile_model(model=model, device_name="MULTI:GPU,CPU")
     compiled_model = core.compile_model(
-        model=model, device_name="MULTI", config={"MULTI_DEVICE_PRIORITIES": "GPU,CPU"}
+        model=model,
+        device_name="MULTI",
+        config={ov.properties.device.priorities(): "GPU,CPU"},
     )
-#! [MULTI_0]
+    #! [MULTI_0]
 
 
 def MULTI_1():
@@ -32,22 +34,22 @@ def MULTI_1():
     core = ov.Core()
 
     core.set_property(
-        device_name="MULTI", properties={"MULTI_DEVICE_PRIORITIES": "CPU,GPU"}
+        device_name="MULTI", properties={ov.properties.device.priorities(): "CPU,GPU"}
     )
     # Once the priority list is set, you can alter it on the fly:
     # reverse the order of priorities
     core.set_property(
-        device_name="MULTI", properties={"MULTI_DEVICE_PRIORITIES": "GPU,CPU"}
+        device_name="MULTI", properties={ov.properties.device.priorities(): "GPU,CPU"}
     )
 
     # exclude some devices (in this case, CPU)
     core.set_property(
-        device_name="MULTI", properties={"MULTI_DEVICE_PRIORITIES": "GPU"}
+        device_name="MULTI", properties={ov.properties.device.priorities(): "GPU"}
     )
 
     # bring back the excluded devices
     core.set_property(
-        device_name="MULTI", properties={"MULTI_DEVICE_PRIORITIES": "GPU,CPU"}
+        device_name="MULTI", properties={ov.properties.device.priorities(): "GPU,CPU"}
     )
 
     # You cannot add new devices on the fly!
@@ -55,9 +57,7 @@ def MULTI_1():
     # [ ERROR ] [NOT_FOUND] You can only change device
     # priorities but not add new devices with the model's
     # ov::device::priorities. CPU device was not in the original device list!
-
-
-#! [MULTI_1]
+    #! [MULTI_1]
 
 
 # the following two pieces of code appear not to be used anywhere
@@ -71,9 +71,7 @@ def available_devices_1():
 
     all_devices += ",".join(core.available_devices)
     compiled_model = core.compile_model(model=model, device_name=all_devices)
-
-
-#! [available_devices_1]
+    #! [available_devices_1]
 
 
 def available_devices_2():
@@ -88,19 +86,14 @@ def available_devices_2():
             match_list.append(d)
     all_devices += ",".join(match_list)
     compiled_model = core.compile_model(model=model, device_name=all_devices)
-
-
-#! [available_devices_2]
+    #! [available_devices_2]
 
 
 def MULTI_4():
     #! [MULTI_4]
-    core = Core()
+    core = ov.Core()
     cpu_config = {}
     gpu_config = {}
-
-    # Read a network in IR, PaddlePaddle, or ONNX format:
-    model = core.read_model(model_path)
 
     # When compiling the model on MULTI, configure CPU and GPU
     # (devices, priorities, and device configurations; gpu_config and cpu_config will load during compile_model() ):
@@ -111,10 +104,10 @@ def MULTI_4():
     )
 
     # Optionally, query the optimal number of requests:
-    nireq = compiled_model.get_property("OPTIMAL_NUMBER_OF_INFER_REQUESTS")
-
-
-#! [MULTI_4]
+    nireq = compiled_model.get_property(
+        ov.properties.optimal_number_of_infer_requests()
+    )
+    #! [MULTI_4]
 
 
 def main():

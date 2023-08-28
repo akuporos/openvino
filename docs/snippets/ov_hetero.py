@@ -34,13 +34,13 @@ compiled_model = core.compile_model(model, device)
 compiled_model = core.compile_model(model, device_name="HETERO:GPU,CPU")
 # device priorities via configuration property
 compiled_model = core.compile_model(
-    model, device_name="HETERO", config={"MULTI_DEVICE_PRIORITIES": "GPU,CPU"}
+    model, device_name="HETERO", config={ov.properties.device.priorities(): "GPU,CPU"}
 )
 #! [compile_model]
 
 #! [configure_fallback_devices]
-core.set_property("HETERO", {"MULTI_DEVICE_PRIORITIES": "GPU,CPU"})
-core.set_property("GPU", {"PERF_COUNT": "YES"})
-core.set_property("CPU", {"INFERENCE_PRECISION_HINT": "f32"})
+core.set_property("HETERO", {ov.properties.device.priorities(): "GPU,CPU"})
+core.set_property("GPU", {ov.properties.enable_profiling(): True})
+core.set_property("CPU", {ov.properties.hint.inference_precision(): ov.Type.f32})
 compiled_model = core.compile_model(model=model, device_name="HETERO")
 #! [configure_fallback_devices]

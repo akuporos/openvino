@@ -21,13 +21,15 @@ def part0():
     # The following lines are equivalent:
     compiled_model = core.compile_model(model=model, device_name="AUTO:GPU,CPU")
     compiled_model = core.compile_model(
-        model=model, device_name="AUTO", config={"MULTI_DEVICE_PRIORITIES": "GPU,CPU"}
+        model=model,
+        device_name="AUTO",
+        config={ov.properties.device.priorities(): "GPU,CPU"},
     )
 
     # Optional
     # the AUTO plugin is pre-configured (globally) with the explicit option:
     core.set_property(
-        device_name="AUTO", properties={"MULTI_DEVICE_PRIORITIES": "GPU,CPU"}
+        device_name="AUTO", properties={ov.properties.device.priorities(): "GPU,CPU"}
     )
     #! [part0]
 
@@ -48,12 +50,16 @@ def part1():
     # The following lines are equivalent:
     exec_net = ie.load_network(network=net, device_name="AUTO:GPU,CPU")
     exec_net = ie.load_network(
-        network=net, device_name="AUTO", config={"MULTI_DEVICE_PRIORITIES": "GPU,CPU"}
+        network=net,
+        device_name="AUTO",
+        config={ov.properties.device.priorities(): "GPU,CPU"},
     )
 
     # Optional
     # the AUTO plugin is pre-configured (globally) with the explicit option:
-    ie.set_config(config={"MULTI_DEVICE_PRIORITIES": "GPU,CPU"}, device_name="AUTO")
+    ie.set_config(
+        config={ov.properties.device.priorities(): "GPU,CPU"}, device_name="AUTO"
+    )
     #! [part1]
 
 
@@ -64,17 +70,27 @@ def part3():
     # Compile a model on AUTO with Performance Hints enabled:
     # To use the “THROUGHPUT” mode:
     compiled_model = core.compile_model(
-        model=model, device_name="AUTO", config={"PERFORMANCE_HINT": "THROUGHPUT"}
+        model=model,
+        device_name="AUTO",
+        config={
+            ov.properties.hint.performance_mode(): ov.properties.hint.PerformanceMode.THROUGHPUT
+        },
     )
     # To use the “LATENCY” mode:
     compiled_model = core.compile_model(
-        model=model, device_name="AUTO", config={"PERFORMANCE_HINT": "LATENCY"}
+        model=model,
+        device_name="AUTO",
+        config={
+            ov.properties.hint.performance_mode(): ov.properties.hint.PerformanceMode.LATENCY
+        },
     )
     # To use the “CUMULATIVE_THROUGHPUT” mode:
     compiled_model = core.compile_model(
         model=model,
         device_name="AUTO",
-        config={"PERFORMANCE_HINT": "CUMULATIVE_THROUGHPUT"},
+        config={
+            ov.properties.hint.performance_mode(): ov.properties.hint.PerformanceMode.CUMULATIVE_THROUGHPUT
+        },
     )
     #! [part3]
 
@@ -85,26 +101,42 @@ def part4():
 
     # Example 1
     compiled_model0 = core.compile_model(
-        model=model, device_name="AUTO", config={"MODEL_PRIORITY": "HIGH"}
+        model=model,
+        device_name="AUTO",
+        config={ov.properties.hint.model_priority(): ov.properties.hint.Priority.HIGH},
     )
     compiled_model1 = core.compile_model(
-        model=model, device_name="AUTO", config={"MODEL_PRIORITY": "MEDIUM"}
+        model=model,
+        device_name="AUTO",
+        config={
+            ov.properties.hint.model_priority(): ov.properties.hint.Priority.MEDIUM
+        },
     )
     compiled_model2 = core.compile_model(
-        model=model, device_name="AUTO", config={"MODEL_PRIORITY": "LOW"}
+        model=model,
+        device_name="AUTO",
+        config={ov.properties.hint.model_priority(): ov.properties.hint.Priority.LOW},
     )
     # Assume that all the devices (CPU and GPUs) can support all the networks.
     # Result: compiled_model0 will use GPU.1, compiled_model1 will use GPU.0, compiled_model2 will use CPU.
 
     # Example 2
     compiled_model3 = core.compile_model(
-        model=model, device_name="AUTO", config={"MODEL_PRIORITY": "HIGH"}
+        model=model,
+        device_name="AUTO",
+        config={ov.properties.hint.model_priority(): ov.properties.hint.Priority.HIGH},
     )
     compiled_model4 = core.compile_model(
-        model=model, device_name="AUTO", config={"MODEL_PRIORITY": "MEDIUM"}
+        model=model,
+        device_name="AUTO",
+        config={
+            ov.properties.hint.model_priority(): ov.properties.hint.Priority.MEDIUM
+        },
     )
     compiled_model5 = core.compile_model(
-        model=model, device_name="AUTO", config={"MODEL_PRIORITY": "LOW"}
+        model=model,
+        device_name="AUTO",
+        config={ov.properties.hint.model_priority(): ov.properties.hint.Priority.LOW},
     )
     # Assume that all the devices (CPU ang GPUs) can support all the networks.
     # Result: compiled_model3 will use GPU.1, compiled_model4 will use GPU.1, compiled_model5 will use GPU.0.
@@ -127,14 +159,20 @@ def part6():
 
     # compile a model on AUTO and set log level to debug
     compiled_model = core.compile_model(
-        model=model, device_name="AUTO", config={"LOG_LEVEL": "LOG_DEBUG"}
+        model=model,
+        device_name="AUTO",
+        config={ov.properties.log.level(): ov.properties.log.Level.DEBUG},
     )
     # set log level with set_property and compile model
-    core.set_property(device_name="AUTO", properties={"LOG_LEVEL": "LOG_DEBUG"})
+    core.set_property(
+        device_name="AUTO",
+        properties={ov.properties.log.level(): ov.properties.log.Level.DEBUG},
+    )
     compiled_model = core.compile_model(model=model, device_name="AUTO")
     #! [part6]
 
 
+# TODO: missing EXECUTION_DEVICES property in Python API
 def part7():
     #! [part7]
     core = ov.Core()
