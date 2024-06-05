@@ -56,6 +56,7 @@ void regclass_graph_Type(py::module m) {
 
     type.def("__hash__", &ov::element::Type::hash);
     type.def("__repr__", [](const ov::element::Type& self) {
+        std::cout << "hoho" << std::endl;
         std::string class_name = Common::get_class_name(self);
         if (self == ov::element::f32 || self == ov::element::f64) {
             std::string bitwidth = std::to_string(self.bitwidth());
