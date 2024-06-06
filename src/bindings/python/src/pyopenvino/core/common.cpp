@@ -369,7 +369,7 @@ py::array array_from_constant_view(ov::op::v0::Constant&& c) {
     } else {
         std::cout << "writeable" << std::endl;
     }
-    // data.attr("flags").attr("writeable") = false;
+   data.attr("flags").attr("writeable") = false;
     return data;
 }
 
