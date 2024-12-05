@@ -37,6 +37,41 @@ void regclass_Tensor(py::module m) {
                 :type shared_memory: bool
             )");
 
+    cls.def(py::init([](py::object& pil_image) {
+                if (!py::isinstance(pil_image, py::module::import("PIL.Image").attr("Image"))) {
+                    OPENVINO_THROW("Input must be a PIL.Image.Image object");
+                }
+
+                // Convert the image to a NumPy array
+                auto np_array = py::module::import("numpy").attr("array")(pil_image);
+
+                // Get shape and data type from the NumPy array
+                py::dtype dtype = np_array.attr("dtype");
+                std::vector<size_t> shape = np_array.attr("shape").cast<std::vector<size_t>>();
+
+                // Convert dtype to ov::element::Type
+                auto ov_type = Common::type_helpers::get_ov_type(dtype);
+
+                // Create and return the Tensor
+                return Common::tensor_from_pointer(np_array, shape, ov_type);
+            }),
+            py::arg("image"),
+            R"(
+                Constructs Tensor from a Pillow Image.
+
+                :param image: Pillow Image to create the tensor from.
+                :type image: PIL.Image.Image
+                :Example:
+                .. code-block:: python
+
+                    from PIL import Image
+                    import openvino.runtime as ov
+
+                    img = Image.open("example.jpg")
+                    tensor = ov.Tensor(img)
+            )");
+
+
     cls.def(py::init([](py::array& array, const ov::Shape& shape, const ov::element::Type& ov_type) {
                 return Common::tensor_from_pointer(array, shape, ov_type);
             }),
