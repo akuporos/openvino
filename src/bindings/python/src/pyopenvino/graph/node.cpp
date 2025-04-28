@@ -498,14 +498,40 @@ void regclass_graph_Node(py::module m) {
                 :rtype: List[openvino.Output]
              )");
     node.def("get_rt_info",
-             (PyRTMap & (ov::Node::*)()) & ov::Node::get_rt_info,
-             py::return_value_policy::reference_internal,
-             R"(
+            (PyRTMap & (ov::Node::*)()) & ov::Node::get_rt_info,
+            py::return_value_policy::reference_internal,
+            R"(
                 Returns PyRTMap which is a dictionary of user defined runtime info.
 
                 :return: A dictionary of user defined data.
                 :rtype: openvino.RTMap
-             )");
+            )");
+    // node.def("get_rt_info", [](const std::shared_ptr<ov::Node>& self) {
+    //     return Common::utils::from_ov_any(self->get_rt_info());
+    //     //return py::cast(self->get_rt_info());
+    // },
+    // py::return_value_policy::reference_internal,
+    // R"(
+    //     Returns PyRTMap which is a dictionary of user defined runtime info.
+
+    //     :return: A dictionary of user defined data.
+    //     :rtype: openvino.RTMap
+    // )");
+    
+    node.def("set_rt_info", [](const std::shared_ptr<ov::Node>& self, const py::str& value, const py::str& key) {
+        auto rt_map = self->get_rt_info();
+        rt_map[key.cast<std::string>()] = value;
+    },
+    py::arg("value"),
+    py::arg("key"),
+    R"(
+        Sets PyRTMap which is a dictionary of user defined runtime info.
+
+        :param value: value for the runtime info
+        :type value: Any
+        :param key: String which defines a key to runtime info.
+        :type key: str
+    )");
 
     node.def("set_argument", &ov::Node::set_argument);
     node.def("set_arguments", [](const std::shared_ptr<ov::Node>& self, const ov::NodeVector& args) {

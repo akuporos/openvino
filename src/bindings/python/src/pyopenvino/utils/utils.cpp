@@ -59,8 +59,10 @@ PY_TYPE check_container_element_type(const T& container) {
 // For complex structure if an element isn't map, then just cast it to OVAny
 py::object from_ov_any_no_leaves(const ov::Any& any) {
     if (any.is<std::shared_ptr<ov::Meta>>() || any.is<ov::AnyMap>()) {
+        std::cout << "momomo" <<std::endl;
         return Common::utils::from_ov_any_map_no_leaves(any);
     } else {
+        std::cout << "any" << std::endl;
         return py::cast(any);
     }
 }

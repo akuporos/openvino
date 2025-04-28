@@ -7,7 +7,6 @@ import numpy as np
 import pytest
 
 import openvino.opset8 as ops
-import openvino as ov
 
 from openvino import (
     Model,
@@ -515,7 +514,17 @@ def test_runtime_info():
     runtime_info["affinity"] = "test_affinity"
     relu_node.set_friendly_name("testReLU")
     runtime_info_after = relu_node.get_rt_info()
+    print("test")
+    print(runtime_info["affinity"])
+    print("end test")
     assert runtime_info_after["affinity"] == "test_affinity"
+    relu_node.set_rt_info("affinity2", "test_affinity2")
+    print(relu_node.get_rt_info()["affinity2"])
+    runtime_info_after = relu_node.get_rt_info()
+    print("test2")
+    print(runtime_info_after["affinity2"])
+    print("end test2")
+    assert runtime_info_after["affinity2"] == "test_affinity2"
 
 
 def test_multiple_outputs():

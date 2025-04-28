@@ -71,12 +71,14 @@ void regclass_graph_PyRTMap(py::module m) {
         .def("__next__", &PyRTMapIterator::next);
 
     py_map.def("__setitem__", [](PyRTMap& m, const std::string& k, const std::string v) {
+        std::cout << "from set" << std::endl;
         m[k] = v;
     });
     py_map.def("__setitem__", [](PyRTMap& m, const std::string& k, const int64_t v) {
         m[k] = v;
     });
     py_map.def("__getitem__", [](PyRTMap& m, const std::string& k) -> py::object {
+        std::cout << "hehehe" <<std::endl;
         return Common::utils::from_ov_any_no_leaves(m[k]);
     });
     py_map.def(
@@ -126,6 +128,7 @@ void regclass_graph_PyRTMap(py::module m) {
     py_map.def("__len__", &PyRTMap::size);
 
     py_map.def("__repr__", [](const PyRTMap& self) {
+        std::cout << "lol" << std::endl;
         return Common::get_simple_repr(self);
     });
 }

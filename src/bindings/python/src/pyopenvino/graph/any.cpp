@@ -63,9 +63,11 @@ void regclass_graph_Any(py::module m) {
     });
 
     ov_any.def("__eq__", [](const ov::Any& a, const ov::Any& b) -> bool {
+        std::cout << "eq" << std::endl;
         return a == b;
     });
     ov_any.def("__eq__", [](const ov::Any& a, py::object& b) -> bool {
+        std::cout << "eq2" << std::endl;
         return a == ov::Any(Common::utils::py_object_to_any(b));
     });
     ov_any.def(
